@@ -1,34 +1,34 @@
 type STIXEntity =
-  | "attack-pattern"
-  | "tool"
-  | "identity"
-  | "course-of-action"
-  | "malware"
-  | "intrusion-set"
-  | "marking_definition";
+  | 'attack-pattern'
+  | 'tool'
+  | 'identity'
+  | 'course-of-action'
+  | 'malware'
+  | 'intrusion-set'
+  | 'marking_definition';
 type STIXRelation =
-  | "uses"
-  | "mitigates"
-  | "delivers"
-  | "targets"
-  | "attributed-to"
-  | "indicates"
-  | "derives"
-  | "duplicate-of"
-  | "related-to";
+  | 'uses'
+  | 'mitigates'
+  | 'delivers'
+  | 'targets'
+  | 'attributed-to'
+  | 'indicates'
+  | 'derives'
+  | 'duplicate-of'
+  | 'related-to';
 type STIXAttribute =
-  | "id"
-  | "created"
-  | "modified"
-  | "spec_version"
-  | "description"
-  | "name"
-  | "aliases"
-  | "revoked"
-  | "is_family"
-  | "source_name"
-  | "url"
-  | "external_id";
+  | 'id'
+  | 'created'
+  | 'modified'
+  | 'spec_version'
+  | 'description'
+  | 'name'
+  | 'aliases'
+  | 'revoked'
+  | 'is_family'
+  | 'source_name'
+  | 'url'
+  | 'external_id';
 
 interface STIXMap {
   type: string;
@@ -38,4 +38,8 @@ interface STIXMap {
 
 interface STIXAttributeMapper {
   [K in STIXAttribute]: STIXMap;
+}
+
+interface STIXObject {
+  created_by_ref: string;
 }

@@ -2,14 +2,20 @@
   "name": "mitre-attack",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "node app"
+  "main": "index.ts",
+  "scripts":
+  {
+    "dev": "ts-node index"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "express": "^4.19.2"
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "prettier": "^3.2.5",
+    "ts-node": "^10.9.2"
+  },
+  "prettier": {
+    "singleQuote": true
   }
 }

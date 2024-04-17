@@ -40,6 +40,20 @@ interface STIXAttributeMapper {
   [K in STIXAttribute]: STIXMap;
 }
 
-interface STIXObject {
+interface STIXObject extends Record<string, STIXMap> {
+  type: STIXEntity;
+  id: string;
   created_by_ref: string;
+  identity_class: string;
+  created: string;
+  modified: string;
+  spec_version: string;
+  description: string;
+  name: string;
+  aliases: string;
+  revoked: string;
+  is_family: string;
+  source_name: string;
+  url: string;
+  external_id: string;
 }

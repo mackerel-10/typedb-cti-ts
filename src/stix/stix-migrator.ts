@@ -28,6 +28,8 @@ class STIXMigrator {
     const insertQueryGenerator: STIXInsertGenerator = new STIXInsertGenerator(
       STIXObjectList,
     );
+
+    // Insert STIX objects To Entity
     this.migrateSTIXObjects(insertQueryGenerator);
     // this.migrateSTIXRelationships();
     // this.migrateKillChainPhases();

@@ -1,23 +1,13 @@
 import fs from 'fs';
 import STIXInsertGenerator from './stix-insert-generator';
 import TypeDBInserter from './typedb-inserter';
+import { TypeDBDriver } from 'typedb-driver';
 
 class STIXMigrator {
   inserter: TypeDBInserter; // TypeDBInserter
 
-  constructor(inserter: TypeDBInserter) {
-    this.inserter = inserter;
-  }
-
-  static async build(
-    typeDBUri: string,
-    database: string,
-  ): Promise<STIXMigrator> {
-    const inserter: TypeDBInserter = await TypeDBInserter.build(
-      typeDBUri,
-      database,
-    );
-    return new STIXMigrator(inserter);
+  constructor(driver: TypeDBDriver, database: string) {
+    this.inserter = new TypeDBInserter(driver, database);
   }
 
   migrate() {

@@ -7,7 +7,10 @@ class StixInsertGenerator {
     this.jsonObject = jsonObject;
   }
 
-  referencedStixObjects() {
+  referencedStixObjects(): {
+    processedIds: Set<string>;
+    queryList: Set<string>;
+  } {
     // Get reference id
     const referencedIds: Set<string> = new Set();
     for (const stixObject of this.jsonObject) {
@@ -26,7 +29,7 @@ class StixInsertGenerator {
           if (entityType === 'identity') {
             entityType = stixObject.identity_class;
           }
-          let query = `insert $x isa ${entityType}, ${this.attribute(stixObject)};`;
+          const query = `insert $x isa ${entityType}, ${this.attribute(stixObject)};`;
           queryList.add(query);
         }
       }
@@ -38,16 +41,35 @@ class StixInsertGenerator {
     };
   }
 
-  attribute(stixObject: STIXObject) {
-    let query = '';
-    const typeDBAttributes = stixAttributesToTypeDB();
-    for (let [stixKey, typeQLDefinition] of Object.entries(typeDBAttributes)) {
+  attribute(stixObject: STIXObject): Query {
+    let query: Query = '';
+    const typeDBAttributes: STIXAttributeMapper = stixAttributesToTypeDB();
+
+    for (const [stixKey, typeQLDefinition] of Object.entries(
+      typeDBAttributes,
+    )) {
       if (stixKey in stixObject) {
-        let typeQLAttributeType = typeQLDefinition.type;
-        let stixValueType = typeQLDefinition.value;
-        let stixValue = stixObject[stixKey];
+        const typeQLAttributeType = typeQLDefinition.type;
+        const stixValueType = typeQLDefinition.value;
+        const stixValue: string | string[] = stixObject[stixKey];
+
+        switch (stixValueType) {
+          case 'string':
+            query += ` has ${typeQLAttributeType} '${stixValue}',`;
+            break;
+          case 'boolean':
+            query += ` has ${typeQLAttributeType} ${stixValue},`;
+            break;
+          case 'list':
+            for (const value of stixValue) {
+              query += ` has ${typeQLAttributeType} '${value}',`;
+            }
+            break;
+        }
       }
     }
+
+    return query.slice(1, -1);
   }
 }
 

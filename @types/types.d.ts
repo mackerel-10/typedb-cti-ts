@@ -1,3 +1,4 @@
+type Query = string;
 type STIXEntity =
   | 'attack-pattern'
   | 'tool'
@@ -40,20 +41,27 @@ interface STIXAttributeMapper {
   [K in STIXAttribute]: STIXMap;
 }
 
-interface STIXObject extends Record<string, STIXMap> {
-  type: STIXEntity;
+interface STIXObject extends Record<string, string | STIXEntity> {
   id: string;
-  created_by_ref: string;
-  identity_class: string;
+  type: STIXEntity;
   created: string;
+  created_by_ref: string;
   modified: string;
-  spec_version: string;
-  description: string;
   name: string;
-  aliases: string;
-  revoked: string;
-  is_family: string;
+  description: string;
+  spec_version: string;
+  is_family: boolean;
+  aliases: string[];
+  revoked: boolean;
+  identity_class: string;
+
+  // external_references
   source_name: string;
   url: string;
   external_id: string;
+}
+
+interface Referenced {
+  processedIds: Set<string>;
+  queryList: Set<string>;
 }

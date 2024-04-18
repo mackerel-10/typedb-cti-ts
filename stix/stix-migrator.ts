@@ -9,7 +9,8 @@ class StixMigrator {
 
   migrateStixObjects() {
     // Make refence stix object insert queries
-    const referencedObject = this.inserter.referencedStixObjects();
+    const referenced: Referenced = this.inserter.referencedStixObjects();
+    this.inserter;
   }
 }
 

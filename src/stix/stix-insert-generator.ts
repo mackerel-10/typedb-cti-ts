@@ -1,20 +1,20 @@
-import { stixAttributesToTypeDB, stixEntityToTypeDB } from './type-mapping';
+import { STIXAttributesToTypeDB, STIXEntityToTypeDB } from './type-mapping';
 
-class StixInsertGenerator {
-  stixObjectList: STIXObject[];
+class STIXInsertGenerator {
+  STIXObjectList: STIXObject[];
 
-  constructor(stixObjectList: STIXObject[]) {
-    this.stixObjectList = stixObjectList;
+  constructor(STIXObjectList: STIXObject[]) {
+    this.STIXObjectList = STIXObjectList;
   }
 
-  referencedStixObjects(): {
+  referencedSTIXObjects(): {
     processedIds: Set<string>;
     queryList: Set<string>;
   } {
     // Get reference id
     const referencedIds: Set<string> = new Set();
-    for (const stixObject of this.stixObjectList) {
-      const createdByRef: string | undefined = stixObject.created_by_ref;
+    for (const STIXObject of this.STIXObjectList) {
+      const createdByRef: string | undefined = STIXObject.created_by_ref;
       if (createdByRef && !referencedIds.has(createdByRef)) {
         referencedIds.add(createdByRef);
       }
@@ -22,14 +22,14 @@ class StixInsertGenerator {
 
     // Generate insert query of reference STIX object
     const queryList: Set<string> = new Set();
-    for (const stixObject of this.stixObjectList) {
+    for (const STIXObject of this.STIXObjectList) {
       for (const referencedId of referencedIds) {
-        if (stixObject.id === referencedId) {
-          let entityType: string = stixEntityToTypeDB(stixObject.type).type;
+        if (STIXObject.id === referencedId) {
+          let entityType: string = STIXEntityToTypeDB(STIXObject.type).type;
           if (entityType === 'identity') {
-            entityType = stixObject.identity_class;
+            entityType = STIXObject.identity_class;
           }
-          const query = `insert $x isa ${entityType}, ${this.attribute(stixObject)};`;
+          const query = `insert $x isa ${entityType}, ${this.attribute(STIXObject)};`;
           queryList.add(query);
         }
       }
@@ -41,27 +41,27 @@ class StixInsertGenerator {
     };
   }
 
-  attribute(stixObject: STIXObject): Query {
+  attribute(STIXObject: STIXObject): Query {
     let query: Query = '';
-    const typeDBAttributes: STIXAttributeMapper = stixAttributesToTypeDB();
+    const typeDBAttributes: STIXAttributeMapper = STIXAttributesToTypeDB();
 
-    for (const [stixKey, typeQLDefinition] of Object.entries(
+    for (const [STIXKey, typeQLDefinition] of Object.entries(
       typeDBAttributes,
     )) {
-      if (stixKey in stixObject) {
+      if (STIXKey in STIXObject) {
         const typeQLAttributeType = typeQLDefinition.type;
-        const stixValueType = typeQLDefinition.value;
-        const stixValue: string | string[] = stixObject[stixKey];
+        const STIXValueType = typeQLDefinition.value;
+        const STIXValue: string | string[] = STIXObject[STIXKey];
 
-        switch (stixValueType) {
+        switch (STIXValueType) {
           case 'string':
-            query += ` has ${typeQLAttributeType} '${stixValue}',`;
+            query += ` has ${typeQLAttributeType} '${STIXValue}',`;
             break;
           case 'boolean':
-            query += ` has ${typeQLAttributeType} ${stixValue},`;
+            query += ` has ${typeQLAttributeType} ${STIXValue},`;
             break;
           case 'list':
-            for (const value of stixValue) {
+            for (const value of STIXValue) {
               query += ` has ${typeQLAttributeType} '${value}',`;
             }
             break;
@@ -73,4 +73,4 @@ class StixInsertGenerator {
   }
 }
 
-export default StixInsertGenerator;
+export default STIXInsertGenerator;

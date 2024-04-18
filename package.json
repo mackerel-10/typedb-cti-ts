@@ -2,9 +2,8 @@
   "name": "mitre-attack",
   "version": "1.0.0",
   "description": "",
-  "main": "src/index.ts",
-  "scripts":
-  {
+  "main": "index.ts",
+  "scripts": {
     "dev": "ts-node index"
   },
   "keywords": [],
@@ -17,5 +16,8 @@
   },
   "prettier": {
     "singleQuote": true
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
   }
 }

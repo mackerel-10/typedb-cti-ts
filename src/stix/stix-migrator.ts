@@ -1,29 +1,29 @@
 import fs from 'fs';
-import StixInsertGenerator from './stix-insert-generator';
+import STIXInsertGenerator from './stix-insert-generator';
+import TypeDBInserter from './typedb-inserter';
 
-class StixMigrator {
-  // inserter; // TypeDBInserter
+class STIXMigrator {
+  inserter; // TypeDBInserter
 
-  constructor() {
-    // typeDBUri: string, database: string
-    // this.inserter = new TypeDBInserter(typeDBUri, database);
+  constructor(typeDBUri: string, database: string) {
+    this.inserter = new TypeDBInserter(typeDBUri, database);
   }
 
   migrate() {
     // Parse MITRE ATT&CK JSON files
-    const stixObjectList = this.readStixObjectsJson();
+    const STIXObjectList = this.readSTIXObjectsJson();
 
     // Generate Insert QueryList & insert to TypeDB
-    const insertQueryGenerator: StixInsertGenerator = new StixInsertGenerator(
-      stixObjectList,
+    const insertQueryGenerator: STIXInsertGenerator = new STIXInsertGenerator(
+      STIXObjectList,
     );
-    this.migrateStixObjects(insertQueryGenerator);
-    // this.migrateStixRelationships();
+    this.migrateSTIXObjects(insertQueryGenerator);
+    // this.migrateSTIXRelationships();
     // this.migrateKillChainPhases();
     // this.migrateExternalReferences();
   }
 
-  readStixObjectsJson = () => {
+  readSTIXObjectsJson = () => {
     const mitreVersion: string = '14.1';
     const enterpriseJSONfile = fs.readFileSync(
       `./mitre/enterprise-attack-${mitreVersion}.json`,
@@ -44,11 +44,11 @@ class StixMigrator {
     return JSON.parse(enterpriseJSONfile).objects;
   };
 
-  migrateStixObjects(insertQueryGenerator: StixInsertGenerator) {
+  migrateSTIXObjects(insertQueryGenerator: STIXInsertGenerator) {
     // Make reference STIX object insert queries
-    const referenced: Referenced = insertQueryGenerator.referencedStixObjects();
+    const referenced: Referenced = insertQueryGenerator.referencedSTIXObjects();
     // this.inserter.insert(referenced.queryList);
   }
 }
 
-export default StixMigrator;
+export default STIXMigrator;

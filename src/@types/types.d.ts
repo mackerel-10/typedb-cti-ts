@@ -34,7 +34,7 @@ type STIXAttribute =
 interface STIXMap {
   type: string;
   [key: string]: string | boolean;
-  stixType?: string;
+  STIXType?: string;
 }
 
 interface STIXAttributeMapper {

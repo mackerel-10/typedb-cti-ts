@@ -1,10 +1,10 @@
 import { stixAttributesToTypeDB, stixEntityToTypeDB } from './type-mapping';
 
 class StixInsertGenerator {
-  jsonObject: STIXObject[];
+  stixObjectList: STIXObject[];
 
-  constructor(jsonObject: STIXObject[]) {
-    this.jsonObject = jsonObject;
+  constructor(stixObjectList: STIXObject[]) {
+    this.stixObjectList = stixObjectList;
   }
 
   referencedStixObjects(): {
@@ -13,7 +13,7 @@ class StixInsertGenerator {
   } {
     // Get reference id
     const referencedIds: Set<string> = new Set();
-    for (const stixObject of this.jsonObject) {
+    for (const stixObject of this.stixObjectList) {
       const createdByRef: string | undefined = stixObject.created_by_ref;
       if (createdByRef && !referencedIds.has(createdByRef)) {
         referencedIds.add(createdByRef);
@@ -22,7 +22,7 @@ class StixInsertGenerator {
 
     // Generate insert query of reference STIX object
     const queryList: Set<string> = new Set();
-    for (const stixObject of this.jsonObject) {
+    for (const stixObject of this.stixObjectList) {
       for (const referencedId of referencedIds) {
         if (stixObject.id === referencedId) {
           let entityType: string = stixEntityToTypeDB(stixObject.type).type;

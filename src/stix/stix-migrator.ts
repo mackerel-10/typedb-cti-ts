@@ -3,10 +3,21 @@ import STIXInsertGenerator from './stix-insert-generator';
 import TypeDBInserter from './typedb-inserter';
 
 class STIXMigrator {
-  inserter; // TypeDBInserter
+  inserter: TypeDBInserter; // TypeDBInserter
 
-  constructor(typeDBUri: string, database: string) {
-    this.inserter = new TypeDBInserter(typeDBUri, database);
+  constructor(inserter: TypeDBInserter) {
+    this.inserter = inserter;
+  }
+
+  static async build(
+    typeDBUri: string,
+    database: string,
+  ): Promise<STIXMigrator> {
+    const inserter: TypeDBInserter = await TypeDBInserter.build(
+      typeDBUri,
+      database,
+    );
+    return new STIXMigrator(inserter);
   }
 
   migrate() {

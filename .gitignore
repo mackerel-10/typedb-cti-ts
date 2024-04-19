@@ -1,5 +1,6 @@
 .env
 .idea/
+.typedb-studio/
 
 node_modules/
 data/

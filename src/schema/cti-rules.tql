@@ -111,5 +111,5 @@ when {
 	$mitigation (mitigating: $course-of-action, mitigated: $sdo) isa mitigation;
 	$use (used: $sdo, used-by: $intrusion-set) isa use;
 } then {
-	(mitigating: $course-of-action, mitigated: $intrusion-set) isa inferred-mitigation;
+	(inferred-mitigating: $course-of-action, inferred-mitigated: $intrusion-set) isa inferred-mitigation;
 };

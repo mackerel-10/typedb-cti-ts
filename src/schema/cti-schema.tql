@@ -189,6 +189,7 @@ course-of-action sub stix-domain-object,
 	# Common Relations
 	plays investigation:investigating,
 	plays mitigation:mitigating,
+	plays inferred-mitigation:inferred-mitigating, # added
 	plays remediation:remediating;
 
 	# Reverse Relations
@@ -352,7 +353,8 @@ intrusion-set sub stix-domain-object,
 	# Object marking 
 
 	# Inferred role player
-	plays inferred-mitigation:mitigated;
+	# plays inferred-mitigation:mitigated;
+	plays inferred-mitigation:inferred-mitigated;
 
 # 4.10 Location
 location sub stix-domain-object,
@@ -1377,8 +1379,9 @@ kill-chain sub relation,
 	owns kill-chain-name, 
 	relates participating-kill-chain-phase; 
 
-inferred-mitigation sub relation,
-    relates mitigated;
+inferred-mitigation sub mitigation,
+    relates inferred-mitigated as mitigated,
+    relates inferred-mitigating as mitigating;
 
 ##### ATTRIBUTES #####
 

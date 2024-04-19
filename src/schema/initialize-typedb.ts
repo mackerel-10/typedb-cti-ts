@@ -11,14 +11,17 @@ import fs from 'fs';
 const close = async (
   transaction: TypeDBTransaction | undefined,
   session: TypeDBSession | undefined,
-) => {
+): Promise<void> => {
   if (transaction?.isOpen()) {
     await transaction.close();
   }
   session?.close();
 };
 
-const defineRole = async (driver: TypeDBDriver, database: string) => {
+const defineRole = async (
+  driver: TypeDBDriver,
+  database: string,
+): Promise<void> => {
   let session: TypeDBSession | undefined;
   let transaction: TypeDBTransaction | undefined;
 
@@ -42,7 +45,10 @@ const defineRole = async (driver: TypeDBDriver, database: string) => {
   }
 };
 
-const defineSchema = async (driver: TypeDBDriver, database: string) => {
+const defineSchema = async (
+  driver: TypeDBDriver,
+  database: string,
+): Promise<void> => {
   let session: TypeDBSession | undefined;
   let transaction: TypeDBTransaction | undefined;
 

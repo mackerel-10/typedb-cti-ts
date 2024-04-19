@@ -82,8 +82,8 @@ const initializeTypedb = async (
     }
 
     // #2 Define schema and role
-    await defineSchema(driver, database);
-    await defineRole(driver, database);
+    // await defineSchema(driver, database);
+    // await defineRole(driver, database);
   } catch (error) {
     console.error(error);
   }
@@ -95,4 +95,4 @@ const initializeTypedb = async (
   return driver;
 };
 
-export default initializeTypedb;
+export { initializeTypedb, close };

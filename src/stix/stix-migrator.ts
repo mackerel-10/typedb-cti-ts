@@ -10,7 +10,7 @@ class STIXMigrator {
     this.inserter = new TypeDBInserter(driver, database);
   }
 
-  migrate() {
+  async migrate() {
     // Parse MITRE ATT&CK JSON files
     const STIXObjectList = this.readSTIXObjectsJson();
 
@@ -20,7 +20,7 @@ class STIXMigrator {
     );
 
     // Insert STIX objects To Entity
-    this.migrateSTIXObjects(insertQueryGenerator);
+    await this.migrateSTIXObjects(insertQueryGenerator);
     // this.migrateSTIXRelationships();
     // this.migrateKillChainPhases();
     // this.migrateExternalReferences();
@@ -47,10 +47,10 @@ class STIXMigrator {
     return JSON.parse(enterpriseJSONfile).objects;
   };
 
-  migrateSTIXObjects(insertQueryGenerator: STIXInsertGenerator) {
+  async migrateSTIXObjects(insertQueryGenerator: STIXInsertGenerator) {
     // Make reference STIX object insert queries
     const referenced: Referenced = insertQueryGenerator.referencedSTIXObjects();
-    // this.inserter.insert(referenced.queryList);
+    await this.inserter.insert(referenced.queryList);
   }
 }
 

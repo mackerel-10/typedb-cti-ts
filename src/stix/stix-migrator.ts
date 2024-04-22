@@ -26,7 +26,7 @@ class STIXMigrator {
     // this.migrateExternalReferences();
   }
 
-  readSTIXObjectsJson = () => {
+  readSTIXObjectsJson() {
     const mitreVersion: string = process.env.MITRE_ATTACK_VERSION!;
     const enterpriseJSONfile = fs.readFileSync(
       `./mitre/enterprise-attack-${mitreVersion}.json`,
@@ -34,7 +34,7 @@ class STIXMigrator {
     );
 
     return JSON.parse(enterpriseJSONfile).objects;
-  };
+  }
 
   async migrateSTIXObjects(insertQueryGenerator: STIXInsertGenerator) {
     // Generate reference STIX object insert queries

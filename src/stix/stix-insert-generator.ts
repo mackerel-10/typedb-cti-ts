@@ -1,10 +1,13 @@
 import { STIXAttributesToTypeDB, STIXEntityToTypeDB } from './type-mapping';
+import stixMigrator from './stix-migrator';
 
 class STIXInsertGenerator {
   STIXObjectList: STIXObject[];
+  ignoreConditions: string[];
 
-  constructor(STIXObjectList: STIXObject[]) {
+  constructor(STIXObjectList: STIXObject[], ignoreConditions: string[] = []) {
     this.STIXObjectList = STIXObjectList;
+    this.ignoreConditions = ignoreConditions;
   }
 
   referencedSTIXObjects() {
@@ -64,7 +67,23 @@ class STIXInsertGenerator {
     };
   }
 
-  STIXObjectsAndMarkingRelations() {}
+  STIXObjectsAndMarkingRelations() {
+    const STIXEntityQueryList = new Set();
+    const STIXObjectsWithMarkingReferences = new Set();
+    const ignored = [];
+
+    for (const STIXObject of this.STIXObjectList) {
+      const stixObjectType = STIXObject.type;
+
+      let skipCheck = false;
+      // Don't insert the object if it's deprecated. Default behaviour is that deprecated objects get loaded.
+    }
+
+    return {
+      STIXEntityQueryList,
+      // markingRelations: markingRelationsQueryList,
+    };
+  }
 
   attribute(STIXObject: STIXObject): Query {
     let query: Query = '';

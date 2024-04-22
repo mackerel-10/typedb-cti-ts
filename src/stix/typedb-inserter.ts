@@ -5,6 +5,7 @@ import {
   SessionType,
   TransactionType,
 } from 'typedb-driver';
+import logger from '../logger';
 import { close } from '../schema/initialize-typedb';
 
 class TypeDBInserter {
@@ -17,6 +18,7 @@ class TypeDBInserter {
   }
 
   async insert(queryList: Query[]) {
+    const startTime = new Date().getTime();
     const batchSize = parseInt(process.env.BATCH_SIZE!) || 50;
 
     // Split queryList into batches
@@ -31,11 +33,13 @@ class TypeDBInserter {
     }
     batchList.push(batch);
 
-    console.time();
     await Promise.all(
       batchList.map((batch: Query[]) => this.insertQueryBatch(batch)),
     );
-    console.timeEnd();
+
+    logger.info(
+      `Inserted ${queryList.length} queries in ${new Date().getTime() - startTime} ms`,
+    );
   }
 
   async insertQueryBatch(queryList: Query[]): Promise<void> {

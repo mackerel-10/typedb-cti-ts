@@ -34,7 +34,6 @@ const defineRole = async (
     session = await driver.session(database, SessionType.SCHEMA);
     transaction = await session.transaction(TransactionType.WRITE);
 
-    // Cti Rules
     await transaction.query.define(ctiRules);
     await transaction.commit();
   } catch (error) {
@@ -88,8 +87,8 @@ const initializeTypedb = async (
     }
 
     // #2 Define schema and role
-    // await defineSchema(driver, database);
-    // await defineRole(driver, database);
+    await defineSchema(driver, database);
+    await defineRole(driver, database);
   } catch (error) {
     console.error(error);
   }

@@ -1,10 +1,10 @@
 import fs from 'fs';
+import { TypeDBDriver } from 'typedb-driver';
 import STIXInsertGenerator from './stix-insert-generator';
 import TypeDBInserter from './typedb-inserter';
-import { TypeDBDriver } from 'typedb-driver';
 
 class STIXMigrator {
-  inserter: TypeDBInserter; // TypeDBInserter
+  inserter: TypeDBInserter;
 
   constructor(driver: TypeDBDriver, database: string) {
     this.inserter = new TypeDBInserter(driver, database);
@@ -27,22 +27,11 @@ class STIXMigrator {
   }
 
   readSTIXObjectsJson = () => {
-    const mitreVersion: string = '14.1';
+    const mitreVersion: string = process.env.MITRE_ATTACK_VERSION!;
     const enterpriseJSONfile = fs.readFileSync(
       `./mitre/enterprise-attack-${mitreVersion}.json`,
       'utf8',
     );
-    /*const mobileJSONfile = fs.readFileSync(
-      `./mitre/mobile-attack-${mitreVersion}.json`,
-      'utf8',
-    );
-    const ICSJSONfile = fs.readFileSync(
-      `./mitre/ics-attack-${mitreVersion}.json`,
-      'utf8',
-    );*/
-
-    // const parsedMobileJSONData = JSON.parse(mobileJSONfile).objects;
-    // const parsedICSJSONData = JSON.parse(ICSJSONfile).objects;
 
     return JSON.parse(enterpriseJSONfile).objects;
   };

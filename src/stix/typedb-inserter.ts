@@ -10,8 +10,6 @@ import { close } from '../schema/initialize-typedb';
 class TypeDBInserter {
   driver: TypeDBDriver;
   database: string;
-  // batch_size;
-  // num_threads;
 
   constructor(driver: TypeDBDriver, database: string) {
     this.driver = driver;
@@ -19,6 +17,25 @@ class TypeDBInserter {
   }
 
   async insert(queryList: Set<string>) {
+    const batchSize = parseInt(process.env.BATCH_SIZE!) || 50;
+
+    // Split queryList into batches
+    const batchList: Query[][] = [];
+    let batch: Query[] = [];
+    for (const query of queryList) {
+      batch.push(query);
+      if (batch.length === batchSize) {
+        batchList.push(batch);
+        batch = [];
+      }
+    }
+    batchList.push(batch);
+
+    await Promise.all(batchList.map((batch) => this.insertQueryBatch(batch)));
+  }
+
+  async insertQueryBatch(queryList: Query[]): Promise<void> {
+    // TypeDB insert
     let session: TypeDBSession | undefined;
     let transaction: TypeDBTransaction | undefined;
 

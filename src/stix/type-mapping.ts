@@ -1,5 +1,5 @@
 const STIXEntityToTypeDB = (STIXType: STIXEntity): STIXMap => {
-  const mapper = {
+  const mapper: Record<string, STIXMap> = {
     'attack-pattern': {
       type: 'attack-pattern',
       customType: false,
@@ -25,7 +25,7 @@ const STIXEntityToTypeDB = (STIXType: STIXEntity): STIXMap => {
     },
   };
 
-  let mapping: STIXMap = mapper[STIXType];
+  let mapping: STIXMap | undefined = mapper[STIXType];
   if (mapping === undefined) {
     mapping = { type: STIXType, customType: true, ignore: false };
   }

@@ -6,7 +6,8 @@ type STIXEntity =
   | 'course-of-action'
   | 'malware'
   | 'intrusion-set'
-  | 'marking_definition';
+  | 'marking_definition'
+  | string;
 type STIXRelation =
   | 'uses'
   | 'mitigates'
@@ -59,9 +60,10 @@ interface STIXObject extends Record<string, string | STIXEntity> {
   source_name: string;
   url: string;
   external_id: string;
-}
 
-interface Referenced {
-  processedIds: Set<string>;
-  queryList: Set<string>;
+  // markings
+  definition_type: string;
+  definition: {
+    statement: string;
+  };
 }

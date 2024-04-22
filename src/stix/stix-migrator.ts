@@ -37,9 +37,20 @@ class STIXMigrator {
   };
 
   async migrateSTIXObjects(insertQueryGenerator: STIXInsertGenerator) {
-    // Make reference STIX object insert queries
-    const referenced: Referenced = insertQueryGenerator.referencedSTIXObjects();
-    await this.inserter.insert(referenced.queryList);
+    // Generate reference STIX object insert queries
+    const { referencedQueryList, referencedProcessedIds } =
+      insertQueryGenerator.referencedSTIXObjects();
+    await this.inserter.insert(referencedQueryList);
+
+    // Generate markings STIX object insert queries
+    const { markingsQueryList, markingsProcessedIds } =
+      insertQueryGenerator.statementMarkings();
+    await this.inserter.insert(markingsQueryList);
+
+    const STIXIdsProcessed =
+      referencedProcessedIds.concat(markingsProcessedIds);
+    /*const STIXObjectsAndMarkings =
+      insertQueryGenerator.STIXObjectsAndMarkingRelations();*/
   }
 }
 

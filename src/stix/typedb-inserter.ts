@@ -16,7 +16,7 @@ class TypeDBInserter {
     this.database = database;
   }
 
-  async insert(queryList: Set<string>) {
+  async insert(queryList: Query[]) {
     const batchSize = parseInt(process.env.BATCH_SIZE!) || 50;
 
     // Split queryList into batches
@@ -31,7 +31,11 @@ class TypeDBInserter {
     }
     batchList.push(batch);
 
-    await Promise.all(batchList.map((batch) => this.insertQueryBatch(batch)));
+    console.time();
+    await Promise.all(
+      batchList.map((batch: Query[]) => this.insertQueryBatch(batch)),
+    );
+    console.timeEnd();
   }
 
   async insertQueryBatch(queryList: Query[]): Promise<void> {

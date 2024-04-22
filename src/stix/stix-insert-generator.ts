@@ -7,10 +7,7 @@ class STIXInsertGenerator {
     this.STIXObjectList = STIXObjectList;
   }
 
-  referencedSTIXObjects(): {
-    processedIds: Set<string>;
-    queryList: Set<string>;
-  } {
+  referencedSTIXObjects() {
     // Get reference id
     const referencedIds: Set<string> = new Set();
     for (const STIXObject of this.STIXObjectList) {
@@ -36,10 +33,38 @@ class STIXInsertGenerator {
     }
 
     return {
-      processedIds: referencedIds,
-      queryList,
+      referencedQueryList: [...queryList],
+      referencedProcessedIds: [...referencedIds],
     };
   }
+
+  statementMarkings() {
+    const queryList: Set<string> = new Set();
+    const processedIds: Set<string> = new Set();
+
+    for (const STIXObject of this.STIXObjectList) {
+      if (
+        STIXObject.type === 'marking-definition' &&
+        STIXObject.definition_type === 'statement'
+      ) {
+        processedIds.add(STIXObject.id);
+        queryList.add(`
+          insert $x isa statement-marking,
+            has stix-id '${STIXObject.id}',
+            has statement '${STIXObject.definition.statement}',
+            has created '${STIXObject.created}',
+            has spec-version '${STIXObject.spec_version}';
+        `);
+      }
+    }
+
+    return {
+      markingsQueryList: [...queryList],
+      markingsProcessedIds: [...processedIds],
+    };
+  }
+
+  STIXObjectsAndMarkingRelations() {}
 
   attribute(STIXObject: STIXObject): Query {
     let query: Query = '';

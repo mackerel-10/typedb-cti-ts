@@ -18,7 +18,7 @@ const STIXEntityToTypeDB = (STIXType: STIXEntity): STIXMap => {
       customType: false,
       ignore: false,
     },
-    marking_definition: {
+    'marking-definition': {
       type: 'marking-definition',
       customType: false,
       ignore: true,

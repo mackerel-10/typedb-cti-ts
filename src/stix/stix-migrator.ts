@@ -2,6 +2,7 @@ import fs from 'fs';
 import { TypeDBDriver } from 'typedb-driver';
 import STIXInsertGenerator from './stix-insert-generator';
 import TypeDBInserter from './typedb-inserter';
+import logger from '../logger';
 
 class STIXMigrator {
   inserter: TypeDBInserter;
@@ -11,6 +12,8 @@ class STIXMigrator {
   }
 
   async migrate() {
+    logger.info('Inserting Data...');
+
     // Parse MITRE ATT&CK JSON files
     const STIXObjectList = this.readSTIXObjectsJson();
 
@@ -24,6 +27,8 @@ class STIXMigrator {
     // this.migrateSTIXRelationships();
     // this.migrateKillChainPhases();
     // this.migrateExternalReferences();
+
+    logger.info('Successfully inserted data');
   }
 
   readSTIXObjectsJson() {
@@ -49,8 +54,8 @@ class STIXMigrator {
 
     const STIXIdsProcessed =
       referencedProcessedIds.concat(markingsProcessedIds);
-    /*const STIXObjectsAndMarkings =
-      insertQueryGenerator.STIXObjectsAndMarkingRelations();*/
+    const STIXObjectsAndMarkings =
+      insertQueryGenerator.STIXObjectsAndMarkingRelations(STIXIdsProcessed); // Exclude processed STIX objects
   }
 }
 

@@ -6,8 +6,8 @@ type STIXEntity =
   | 'course-of-action'
   | 'malware'
   | 'intrusion-set'
-  | 'marking_definition'
-  | string;
+  | 'marking-definition'
+  | string; // For custom STIX entity
 type STIXRelation =
   | 'uses'
   | 'mitigates'
@@ -66,4 +66,9 @@ interface STIXObject extends Record<string, string | STIXEntity> {
   definition: {
     statement: string;
   };
+
+  // deprecated
+  x_mitre_deprecated: boolean;
+
+  object_marking_refs: string[];
 }

@@ -9,7 +9,6 @@ import { initializeTypedb } from './schema/initialize-typedb';
   const database: string = process.env.TYPEDB_DATABASE!;
   const driver: TypeDBDriver = await initializeTypedb(typeDBUri, database);
 
-  // Migrate STIX objects to TypeDB
   const migrator: STIXMigrator = new STIXMigrator(driver, database);
   await migrator.migrate();
 })();

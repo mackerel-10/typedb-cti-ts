@@ -7,6 +7,7 @@ import {
   TypeDBTransaction,
 } from 'typedb-driver';
 import fs from 'fs';
+import logger from '../logger';
 
 const close = async (
   transaction: TypeDBTransaction | undefined,
@@ -87,8 +88,10 @@ const initializeTypedb = async (
     }
 
     // #2 Define schema and role
-    // await defineSchema(driver, database);
-    // await defineRole(driver, database);
+    /*logger.info('Inserting Schema and Rules...');
+    await defineSchema(driver, database);
+    await defineRole(driver, database);
+    logger.info('Successfully committed Schema and Rules.');*/
   } catch (error) {
     console.error(error);
   }

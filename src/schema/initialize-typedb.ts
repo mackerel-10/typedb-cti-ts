@@ -88,10 +88,13 @@ const initializeTypedb = async (
     }
 
     // #2 Define schema and role
-    /*logger.info('Inserting Schema and Rules...');
-    await defineSchema(driver, database);
-    await defineRole(driver, database);
-    logger.info('Successfully committed Schema and Rules.');*/
+    const define = Boolean(JSON.parse(process.env.DEFINE!));
+    if (define) {
+      logger.info('Inserting Schema and Rules...');
+      await defineSchema(driver, database);
+      await defineRole(driver, database);
+      logger.info('Successfully committed Schema and Rules.');
+    }
   } catch (error) {
     console.error(error);
   }

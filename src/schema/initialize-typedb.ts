@@ -72,7 +72,7 @@ const defineSchema = async (
   }
 };
 
-const initializeTypedb = async (
+const initializeTypeDB = async (
   typeDBUri: string,
   database: string,
 ): Promise<TypeDBDriver> => {
@@ -106,4 +106,4 @@ const initializeTypedb = async (
   return driver;
 };
 
-export { initializeTypedb, close };
+export { initializeTypeDB, close };

@@ -1,4 +1,5 @@
 type Query = string;
+type Id = string;
 type STIXEntity =
   | 'attack-pattern'
   | 'tool'

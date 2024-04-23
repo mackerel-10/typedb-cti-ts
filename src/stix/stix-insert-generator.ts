@@ -70,8 +70,8 @@ class STIXInsertGenerator {
   }
 
   STIXObjectsAndMarkingRelations(excludeIds: string[]) {
-    const STIXEntityQueryList = new Set();
-    const STIXObjectsWithMarkingReferences: STIXObject[] = [];
+    const STIXEntityQueryList: Set<Query> = new Set();
+    const STIXObjectsWithMarkingRefs: STIXObject[] = [];
     const ignoreDeprecated: boolean = Boolean(
       JSON.parse(process.env.IGNORE_DEPRECATED!),
     );
@@ -81,7 +81,6 @@ class STIXInsertGenerator {
       const STIXObjectType: string = STIXObject.type;
 
       // Don't insert the object if it's deprecated.
-      // Default behaviour is that deprecated objects get loaded.
       // x_mitre_deprecated === true, we will skip this objects when ignoreDeprecated is true
       if (ignoreDeprecated && STIXObject.x_mitre_deprecated) {
         ignoredObjects++;
@@ -93,47 +92,76 @@ class STIXInsertGenerator {
         STIXObjectType !== 'relationship' &&
         !excludeIds.includes(STIXObject.id)
       ) {
-        const STIXMap = STIXEntityToTypeDB(STIXObjectType);
-        let query: Query = '';
-
-        if (
-          STIXObject.object_marking_refs &&
-          STIXObject.object_marking_refs.length > 0
-        ) {
-          STIXObjectsWithMarkingReferences.push(STIXObject);
+        if (STIXObject.object_marking_refs) {
+          STIXObjectsWithMarkingRefs.push(STIXObject);
         }
 
-        if (STIXMap.cutsomType) {
-          // If customType
-          query = `$stix isa custom-object, has stix-type ${STIXMap.type}`;
-        } else {
-          let entityType: string;
-          if (STIXMap.type === 'identity') {
-            entityType = STIXObject.identity_class;
-          } else {
-            entityType = STIXObject.type;
-          }
-          query = `$stix isa ${entityType}`;
-        }
-        query = `insert ${query}, ${this.attribute(STIXObject)};`;
-
-        if (STIXObject.created_by_ref) {
-          const insertCreatedByReferenceRelation: string =
-            '(created: $stix, creator: $creator) isa creation;';
-          // We expect creating STIX objects to be inserted before
-          const matchCreator: string = `$creator isa thing, has stix-id ${STIXObject.created_by_ref};`;
-          query = `match ${matchCreator}\n${query}\n${insertCreatedByReferenceRelation}`;
-        }
-        STIXEntityQueryList.add(query);
+        STIXEntityQueryList.add(
+          this.generateSTIXQuery(STIXObject, STIXObjectType),
+        );
       }
     }
 
-    // const markingRelationsQueryList = this.markingRelations(STIXObjectsWithMarkingReferences);
+    const markingRelationsQueryList = this.markingRelations(
+      STIXObjectsWithMarkingRefs,
+    );
     logger.info(`Skipped ${ignoredObjects} deprecated objects`);
     return {
-      STIXEntityQueryList,
-      // markingRelations: markingRelationsQueryList,
+      STIXEntityQueryList: [...STIXEntityQueryList],
+      markingRelations: [...markingRelationsQueryList],
     };
+  }
+
+  generateSTIXQuery(STIXObject: STIXObject, STIXObjectType: string): Query {
+    const STIXMap = STIXEntityToTypeDB(STIXObjectType);
+    let query: Query;
+
+    if (STIXMap.customType) {
+      query = `$stix isa custom-object, has stix-type '${STIXMap.type}'`;
+    } else {
+      let entityType: string;
+
+      if (STIXMap.type === 'identity') {
+        entityType = STIXObject.identity_class;
+      } else {
+        entityType = STIXObject.type;
+      }
+      query = `$stix isa ${entityType}`;
+    }
+    query = `
+      insert
+        ${query},
+        ${this.attribute(STIXObject)};
+    `;
+
+    if (STIXObject.created_by_ref) {
+      // We expect creating STIX objects to be inserted before
+      query = `
+        match
+          $creator isa thing, has stix-id '${STIXObject.created_by_ref}';
+        ${query}
+        (created: $stix, creator: $creator) isa creation;
+      `;
+    }
+
+    return query;
+  }
+
+  markingRelations(STIXObjectsWithMarkingRefs: STIXObject[]): Set<Query> {
+    const queryList: Set<Query> = new Set();
+
+    for (const STIXObject of STIXObjectsWithMarkingRefs) {
+      queryList.add(`
+        match
+          $x isa thing, has stix-id '${STIXObject.id}';
+          $marking isa marking-definition,
+            has stix-id '${STIXObject.object_marking_refs[0]}';
+        insert
+          (object-marked: $x, object-marking: $marking) isa object-marking;
+      `);
+    }
+
+    return queryList;
   }
 
   attribute(STIXObject: STIXObject): Query {
@@ -150,7 +178,7 @@ class STIXInsertGenerator {
 
         switch (STIXValueType) {
           case 'string':
-            query += ` has ${typeQLAttributeType} '${STIXValue}',`;
+            query += ` has ${typeQLAttributeType} '${STIXValue.replace(/'/g, '"')}',`;
             break;
           case 'boolean':
             query += ` has ${typeQLAttributeType} ${STIXValue},`;

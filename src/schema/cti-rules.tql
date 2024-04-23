@@ -82,17 +82,17 @@ when {
 };
 
 # Description:
-# If y has been attributed to x, and if y is targetting z, then we can infer that x is targetting z
+# If y has been attributed to x, and if y is targeting z, then we can infer that x is targeting z
 # Example:
 # If an attack pattern, for example "spear fishing", has been attributed to a specific identity named "Bravo",
-# and if that attack pattern is targetting a location, for example New York,
+# and if that attack pattern is targeting a location, for example New York,
 # we can infer that the identiy "Bravo" is targeting the location New York
 rule attribution-when-targeting:
 when {
 	(attributing: $x, attributed: $y) isa attribution;
-	(targetting: $y, targetted: $z) isa target;
+	(targeting: $y, targeted: $z) isa target;
 } then {
-	(targetting: $x, targetted: $z) isa target;
+	(targeting: $x, targeted: $z) isa target;
 };
 
 # Description

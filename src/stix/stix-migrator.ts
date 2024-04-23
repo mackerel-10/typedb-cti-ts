@@ -33,12 +33,12 @@ class STIXMigrator {
 
   readSTIXObjectsJson() {
     const mitreVersion: string = process.env.MITRE_ATTACK_VERSION!;
-    const enterpriseJSONfile = fs.readFileSync(
+    const enterpriseAttack = fs.readFileSync(
       `./mitre/enterprise-attack-${mitreVersion}.json`,
       'utf8',
     );
 
-    return JSON.parse(enterpriseJSONfile).objects;
+    return JSON.parse(enterpriseAttack).objects;
   }
 
   async migrateSTIXObjects(insertQueryGenerator: STIXInsertGenerator) {
@@ -52,10 +52,12 @@ class STIXMigrator {
       insertQueryGenerator.statementMarkings();
     await this.inserter.insert(markingsQueryList);
 
-    const STIXIdsProcessed =
+    const STIXIdsProcessed: Id[] =
       referencedProcessedIds.concat(markingsProcessedIds);
-    const STIXObjectsAndMarkings =
+    const { STIXEntityQueryList, markingRelations } =
       insertQueryGenerator.STIXObjectsAndMarkingRelations(STIXIdsProcessed); // Exclude processed STIX objects
+    await this.inserter.insert(STIXEntityQueryList);
+    await this.inserter.insert(markingRelations);
   }
 }
 

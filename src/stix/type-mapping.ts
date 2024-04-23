@@ -48,8 +48,8 @@ const STIXRelationToTypeDB = (STIXRelationType: STIXRelation): STIXMap => {
     },
     targets: {
       type: 'target',
-      activeRole: 'targetting',
-      passiveRole: 'targetted',
+      activeRole: 'targeting',
+      passiveRole: 'targeted',
     },
     'attributed-to': {
       type: 'attribution',

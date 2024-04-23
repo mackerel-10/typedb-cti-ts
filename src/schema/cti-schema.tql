@@ -128,7 +128,7 @@ custom-object sub stix-domain-object,
 	owns objective,
 	plays kill-chain-usage:kill-chain-used,
 	plays delivery:delivering,
-	plays target:targetting,
+	plays target:targeting,
 	plays use:used-by,
 	plays mitigation:mitigated,
 	plays use:used;
@@ -145,7 +145,7 @@ attack-pattern sub stix-domain-object,
 
 	# Common Relations
 	plays delivery:delivering,
-	plays target:targetting,
+	plays target:targeting,
 	plays use:used-by,
 
 	# Reverse Relations
@@ -170,7 +170,7 @@ campaign sub stix-domain-object,
 	plays attribution:attributing,
 	plays compromise:compromising,
 	plays origination:originating,
-	plays target:targetting,
+	plays target:targeting,
 	plays use:used-by;
 
 	# Reverse Relations
@@ -228,7 +228,7 @@ identity sub stix-domain-object,
 	plays located-at:locating,
 
 	# Reverse Relations
-	plays target:targetted,
+	plays target:targeted,
 	plays attribution:attributed, 
 	plays impersonate:impersonated,
 
@@ -317,7 +317,7 @@ infrastructure sub stix-domain-object,
 	plays host:hosted,
 	# plays indication:indicated, defined in SDO
 	plays ownership:owned,
-	plays target:targetted,
+	plays target:targeted,
 	plays use:used;
 
 	# Object marking ref
@@ -340,7 +340,7 @@ intrusion-set sub stix-domain-object,
 	plays host:hosting,
 	plays ownership:owning,
 	plays origination:originating,
-	plays target:targetting, 
+	plays target:targeting, 
 	plays use:used-by,
 
 	# Reverse Relations
@@ -376,7 +376,7 @@ location sub stix-domain-object,
 	# Reverse relations
 	plays located-at:located,
 	plays origination:originated-from,
-	plays target:targetted;
+	plays target:targeted;
 
 	# Embedded Relations
 	# Creation
@@ -409,7 +409,7 @@ malware sub stix-domain-object,
     plays drop:dropping,
     plays exploit:exploiting,
     plays origination:originating,
-    plays target:targetting,
+    plays target:targeting,
     plays host:hosting,
     plays use:used-by,
     plays variant:variant-source,
@@ -567,7 +567,7 @@ threat-actor sub stix-domain-object,
 	plays ownership:owning,
 	plays impersonate:impersonating,
 	plays located-at:locating,
-	plays target:targetting,
+	plays target:targeting,
 	plays use:used-by,
 
 	# Reverse Relations
@@ -594,7 +594,7 @@ tool sub stix-domain-object,
 	plays delivery:delivering,
 	plays drop:dropping,
 	plays have:having,
-	plays target:targetting,
+	plays target:targeting,
 	plays use:used-by,
 
 	# Reverse Relations
@@ -621,7 +621,7 @@ vulnerability sub stix-domain-object,
 	# NA
 
 	# Reverse Relations
- 	plays target:targetted,
+ 	plays target:targeted,
  	plays exploit:exploited,
  	plays mitigation:mitigated,
  	plays remediation:remediated,
@@ -1034,8 +1034,9 @@ marking-definition sub stix-meta-object,
 	plays creation:created,
 	plays data-marking:marking;
 
-	statement-marking sub marking-definition, 
-		owns statement; 
+	statement-marking sub marking-definition,
+		owns statement,
+	    plays object-marking:object-marking;
 
 	tlp-marking sub marking-definition;
 		tlp-white sub tlp-marking;
@@ -1049,6 +1050,7 @@ data-marking sub relation,
 	relates marked;
 
 	object-marking sub data-marking,
+	    relates object-marking as marking,
 	    relates object-marked as marked;
 
 	granular-marking sub data-marking,
@@ -1088,8 +1090,8 @@ stix-core-relationship sub relation,
 		relates delivered;
 
 	target sub stix-core-relationship, 
-		relates targetting,
-		relates targetted;
+		relates targeting,
+		relates targeted;
 
 	attribution sub stix-core-relationship, 
 		relates attributing,

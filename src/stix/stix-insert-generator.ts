@@ -106,6 +106,12 @@ class STIXInsertGenerator {
       STIXObjectsWithMarkingRefs,
     );
     logger.info(`Skipped ${ignoredObjects} deprecated objects`);
+    logger.info(
+      `Generated ${STIXEntityQueryList.size} insert queries for STIXObjects`,
+    );
+    logger.info(
+      `Generated ${markingRelationsQueryList.size} insert queries for marking relations`,
+    );
     return {
       STIXEntityQueryList: [...STIXEntityQueryList],
       markingRelations: [...markingRelationsQueryList],
@@ -157,7 +163,7 @@ class STIXInsertGenerator {
           $marking isa marking-definition,
             has stix-id '${STIXObject.object_marking_refs[0]}';
         insert
-          (object-marked: $x, object-marking: $marking) isa object-marking;
+          (marked: $x, marking: $marking) isa object-marking;
       `);
     }
 

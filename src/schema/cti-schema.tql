@@ -35,7 +35,7 @@ stix-object sub entity,
 		# Optional
 		owns extensions,
 
-		plays object-marking:object-marked,
+		plays data-marking:marked,
 		plays creation:created,
 		plays sighting:sighting-of,
 
@@ -189,7 +189,6 @@ course-of-action sub stix-domain-object,
 	# Common Relations
 	plays investigation:investigating,
 	plays mitigation:mitigating,
-	plays inferred-mitigation:inferred-mitigating, # added
 	plays remediation:remediating;
 
 	# Reverse Relations
@@ -353,8 +352,7 @@ intrusion-set sub stix-domain-object,
 	# Object marking 
 
 	# Inferred role player
-	# plays inferred-mitigation:mitigated;
-	plays inferred-mitigation:inferred-mitigated;
+	plays mitigation:mitigated;
 
 # 4.10 Location
 location sub stix-domain-object,
@@ -398,7 +396,7 @@ malware sub stix-domain-object,
     # Relations defined as properties in STIX
 	plays kill-chain-usage:kill-chain-used,
 	plays execution:executed-malware, # operating_system_refs
-    plays malware-sample:malware-associated-to, # ssample_refs
+    plays sample:associated-to, # ssample_refs
 
     # Common Relations
     plays authorship:authoring,
@@ -423,9 +421,7 @@ malware sub stix-domain-object,
 	plays drop:dropped,
 	plays control:controled,
 	plays characterise:characterised,
-	plays av-analysis:av-analysed,
-	plays statis-analysis:statis-analysed,
-	plays dynamic-analysis:dynamic-analysed,
+	plays analysis:analysed,
 
     plays download:downloaded,
     plays exploit:exploiting;
@@ -453,13 +449,11 @@ malware-analysis sub stix-domain-object,
 	# Relations defined as properties in STIX
 	# host_vm_ref, _operating_system_ref, instsalled_software_ref, analysis-sco are all defined as 
 	# playing roles in the analysis relation
-	plays malware-analysis-sample:malware-analysis-associated-to, # sample_refs
+	plays sample:associated-to, # sample_refs
 
 	# Common Relations
 	plays characterise:characterising,
-	plays av-analysis:av-analysing,
-	plays statis-analysis:statis-analysing,
-	plays dynamic-analysis:dynamic-analysing;
+	plays analysis:analysing;
 
 	# Reverse Relations
 	# NA
@@ -657,8 +651,7 @@ artifact sub stix-cyber-observable-object,
 	owns decryption-key,
 	plays network-traffic-source:payload,
 	plays network-traffic-destination:payload,
-	plays malware-analysis-sample:malware-analysis-sco-sample,
-	plays malware-sample:malware-sco-sample,
+	plays sample:sco-sample,
 	plays raw-email-reference:binary,
 	plays body-raw-reference:non-textual-mime-part,
 	plays content-file-containing:containing-file,
@@ -669,7 +662,7 @@ autonomous-system sub stix-cyber-observable-object,
 	owns number,
 	owns name,
 	owns rir,
-	plays ipv-autonomous-system-belong:ipv-autonomous-system-belonging-to;
+	plays belong:belonging-to;
 
 # 6.3 Directory Object
 directory sub stix-cyber-observable-object,
@@ -684,8 +677,8 @@ directory sub stix-cyber-observable-object,
 # 6.4 Domain Name Object
 domain-name sub stix-cyber-observable-object,
 	owns value, 
-	plays domain-ipv-resolve:domain-ipv-resolving,
-	plays domain-ipv-resolve:domain-ipv-resolves-to,
+	plays resolve:resolving,
+	plays resolve:resolves-to,
 	plays communication:communicated,
 	plays network-traffic-source:source,
 	plays network-traffic-destination:destination;
@@ -694,7 +687,7 @@ domain-name sub stix-cyber-observable-object,
 email-addr sub stix-cyber-observable-object,
 	owns value, 
 	owns display-name,
-	plays user-email-belong:user-email-belonged,
+	plays belong:belonged,
 	plays email-sending:from-email,
 	plays email-sending:to-email,
 	plays email-sending:cc-email,
@@ -741,8 +734,7 @@ file sub stix-cyber-observable-object,
 	plays file-contain:contained-file,
 	plays content-file-containing:containing-file,
 	plays body-raw-reference:non-textual-mime-part,
-	plays malware-analysis-sample:malware-analysis-sco-sample,
-	plays malware-sample:malware-sco-sample,
+	plays sample:sco-sample,
 	plays download:downloaded,
 	plays image-process:executed-image,
 	plays dll-loading-process:loaded-dll;
@@ -830,9 +822,9 @@ file sub stix-cyber-observable-object,
 # 6.8 IPv4 Address
 ipv4-address sub stix-cyber-observable-object,
 	owns value, 
-	plays domain-ipv-resolve:domain-ipv-resolves-to,
-	plays ipv-mac-resolve:ipv-mac-resolving,
-	plays ipv-autonomous-system-belong:ipv-autonomous-system-belonged,
+	plays resolve:resolves-to,
+	plays resolve:resolving,
+	plays belong:belonged,
 	plays communication:communicated,
 	plays network-traffic-source:source,
 	plays network-traffic-destination:destination;
@@ -840,9 +832,9 @@ ipv4-address sub stix-cyber-observable-object,
 # 6.9 IPv6 Address
 ipv6-address sub stix-cyber-observable-object,
 	owns value, 
-	plays domain-ipv-resolve:domain-ipv-resolves-to,
-	plays ipv-mac-resolve:ipv-mac-resolving,
-	plays ipv-autonomous-system-belong:ipv-autonomous-system-belonged,
+	plays resolve:resolves-to,
+	plays resolve:resolving,
+	plays belong:belonged,
 	plays communication:communicated,
 	plays network-traffic-source:source,
 	plays network-traffic-destination:destination;
@@ -850,7 +842,7 @@ ipv6-address sub stix-cyber-observable-object,
 # 6.10 MAC Address
 mac-addr sub stix-cyber-observable-object,
 	owns value,
-	plays ipv-mac-resolve:ipv-mac-resolves-to,
+	plays resolve:resolves-to,
 	plays network-traffic-source:source,
 	plays network-traffic-destination:destination;
 
@@ -869,7 +861,7 @@ network-traffic sub stix-cyber-observable-object,
 	plays network-traffic-destination:traffic,
 	plays network-traffic-encapsulate:encapsulating,
 	plays network-traffic-encapsulate:encapsulated,
-	plays malware-analysis-sample:malware-analysis-sco-sample,
+	plays sample:sco-sample,
 	plays connection-opening:opened-connection;
 
 	# TODO: Should be a hierarchy or a relation? 
@@ -965,7 +957,7 @@ user-account sub stix-cyber-observable-object,
 	owns account-first-login,
 	owns account-last-login,
 	plays user-creation:creating,
-	plays user-email-belong:user-email-belonging-to;
+	plays belong:belonging-to;
 
 	unix-account-ext sub user-account, 
 		owns gid,
@@ -1035,8 +1027,7 @@ marking-definition sub stix-meta-object,
 	plays data-marking:marking;
 
 	statement-marking sub marking-definition,
-		owns statement,
-	    plays object-marking:object-marking;
+		owns statement;
 
 	tlp-marking sub marking-definition;
 		tlp-white sub tlp-marking;
@@ -1049,13 +1040,10 @@ data-marking sub relation,
 	relates marking,
 	relates marked;
 
-	object-marking sub data-marking,
-	    relates object-marking as marking,
-	    relates object-marked as marked;
+	object-marking sub data-marking;
+	granular-marking sub data-marking;
 
-	granular-marking sub data-marking,
-	    relates granular-marked as marked;
-
+# 7.3 Extension Definition
 # 7.3 Extension Definition
 
 
@@ -1081,7 +1069,7 @@ stix-core-relationship sub relation,
 
 	relates active-role, 
 	relates passive-role,
-	plays object-marking:object-marked,
+	plays data-marking:marked,
 	plays external-referencing:referencing;
 
 
@@ -1206,15 +1194,9 @@ stix-core-relationship sub relation,
 		relates installed-software,
 		relates captured-sco;
 
-		av-analysis sub analysis,
-		    relates av-analysing as analysing,
-		    relates av-analysed as analysed;
-		statis-analysis sub analysis,
-		    relates statis-analysing as analysing,
-            relates statis-analysed as analysed;
-		dynamic-analysis sub analysis,
-		    relates dynamic-analysing as analysing,
-		    relates dynamic-analysed as analysed;
+		av-analysis sub analysis;
+		statis-analysis sub analysis;
+		dynamic-analysis sub analysis;
 
 	impersonate sub stix-core-relationship,
 		relates impersonating,
@@ -1224,24 +1206,16 @@ stix-core-relationship sub relation,
 		relates resolving,
 		relates resolves-to;
 
-	ipv-mac-resolve sub resolve,
-	    relates ipv-mac-resolving as resolving,
-	    relates ipv-mac-resolves-to as resolves-to;
-	domain-ipv-resolve sub resolve,
-	    relates domain-ipv-resolving as resolving,
-        relates domain-ipv-resolves-to as resolves-to;
+	ipv-mac-resolve sub resolve;
+	domain-ipv-resolve sub resolve;
 
 # Relations that are defined as properties in STIX
 sample sub relation, 
 	relates associated-to, 
 	relates sco-sample;
 
-	malware-sample sub sample,
-	    relates malware-associated-to as associated-to,
-        relates malware-sco-sample as sco-sample;
-	malware-analysis-sample sub sample,
-	    relates malware-analysis-associated-to as associated-to,
-        relates malware-analysis-sco-sample as sco-sample;
+	malware-sample sub sample;
+	malware-analysis-sample sub sample;
 
 execution sub relation,
 	relates host-vm,
@@ -1265,12 +1239,8 @@ belong sub relation,
 	relates belonged,
 	relates belonging-to;
 
-	ipv-autonomous-system-belong sub belong,
-	    relates ipv-autonomous-system-belonged as belonged,
-	    relates ipv-autonomous-system-belonging-to as belonging-to;
-	user-email-belong sub belong,
-	    relates user-email-belonged as belonged,
-	    relates user-email-belonging-to as belonging-to;
+	ipv-autonomous-system-belong sub belong;
+	user-email-belong sub belong;
 
 email-sending sub relation, 
 	relates from-email,
@@ -1381,14 +1351,12 @@ kill-chain sub relation,
 	owns kill-chain-name, 
 	relates participating-kill-chain-phase; 
 
-inferred-mitigation sub mitigation,
-    relates inferred-mitigated as mitigated,
-    relates inferred-mitigating as mitigating;
+inferred-mitigation sub mitigation;
 
 ##### ATTRIBUTES #####
 
 stix-attribute-string sub attribute, value string, abstract,
-	plays granular-marking:granular-marked;
+	plays data-marking:marked;
 
 	stix-type sub stix-attribute-string;
 	stix-id sub stix-attribute-string;
@@ -1590,7 +1558,7 @@ stix-attribute-string sub attribute, value string, abstract,
 	comment sub stix-attribute-string;
 
 stix-attribute-double sub attribute, value double, abstract,
-	plays granular-marking:granular-marked;
+	plays data-marking:marked;
 
 	latitude sub stix-attribute-double;
 	longitude sub stix-attribute-double;
@@ -1644,7 +1612,7 @@ stix-attribute-double sub attribute, value double, abstract,
 	subject-public-key-exponent sub stix-attribute-double;
 
 stix-attribute-boolean sub attribute, value boolean, abstract, 
-	plays granular-marking:granular-marked;
+	plays data-marking:marked;
 
 	revoked sub stix-attribute-boolean;
 	is-family sub stix-attribute-boolean;
@@ -1662,7 +1630,7 @@ stix-attribute-boolean sub attribute, value boolean, abstract,
 	is-self-signed sub stix-attribute-boolean;
 
 stix-attribute-timestamp sub attribute, value datetime, abstract, 
-	plays granular-marking:granular-marked;
+	plays data-marking:marked;
 
 	date sub stix-attribute-timestamp;
 	submitted sub stix-attribute-timestamp;
@@ -1687,7 +1655,7 @@ stix-attribute-timestamp sub attribute, value datetime, abstract,
 	private-key-usage-period-not-after sub stix-attribute-timestamp;
 
 custom-attribute sub attribute, value string, 
-	plays granular-marking:granular-marked,
+	plays data-marking:marked,
 	owns attribute-type; 
 
 attribute-type sub attribute, value string;

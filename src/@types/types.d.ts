@@ -1,5 +1,10 @@
 type Query = string;
 type Id = string;
+type Transaction = TypeDBTransaction | undefined;
+type Session = TypeDBSession | undefined;
+type Driver = TypeDBDriver | undefined;
+
+// TypeDB Keywords
 type STIXEntity =
   | 'attack-pattern'
   | 'tool'
@@ -19,7 +24,7 @@ type STIXRelation =
   | 'derives'
   | 'duplicate-of'
   | 'related-to';
-type STIXAttribute =
+/*type STIXAttribute =
   | 'id'
   | 'created'
   | 'modified'
@@ -31,7 +36,7 @@ type STIXAttribute =
   | 'is_family'
   | 'source_name'
   | 'url'
-  | 'external_id';
+  | 'external_id';*/
 
 interface STIXMap {
   type: string;
@@ -72,4 +77,19 @@ interface STIXObject extends Record<string, string | STIXEntity> {
   x_mitre_deprecated: boolean;
 
   object_marking_refs: string[];
+}
+
+interface ReferencedQueryAndId {
+  referencedQueryList: Query[];
+  referencedProcessedIds: Id[];
+}
+
+interface MarkingQueryAndId {
+  markingsQueryList: Query[];
+  markingsProcessedIds: Id[];
+}
+
+interface EntityQueryAndMarkingRelations {
+  STIXEntityQueryList: Query[];
+  markingRelations: Query[];
 }

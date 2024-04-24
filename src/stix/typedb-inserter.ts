@@ -10,14 +10,14 @@ import { close } from '../schema/initialize-typedb';
 
 class TypeDBInserter {
   driver: TypeDBDriver;
-  database: string;
+  databaseName: string;
 
-  constructor(driver: TypeDBDriver, database: string) {
+  constructor(driver: TypeDBDriver, databaseName: string) {
     this.driver = driver;
-    this.database = database;
+    this.databaseName = databaseName;
   }
 
-  async insert(queryList: Query[]) {
+  async insert(queryList: Query[]): Promise<void> {
     const startTime = new Date().getTime();
     const batchSize = parseInt(process.env.BATCH_SIZE!) || 50;
 
@@ -48,7 +48,7 @@ class TypeDBInserter {
     let transaction: TypeDBTransaction | undefined;
 
     try {
-      session = await this.driver.session(this.database, SessionType.DATA);
+      session = await this.driver.session(this.databaseName, SessionType.DATA);
       transaction = await session.transaction(TransactionType.WRITE);
 
       for (const query of queryList) {

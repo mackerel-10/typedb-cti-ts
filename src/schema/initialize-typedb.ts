@@ -3,15 +3,13 @@ import {
   TransactionType,
   TypeDB,
   TypeDBDriver,
-  TypeDBSession,
-  TypeDBTransaction,
 } from 'typedb-driver';
 import fs from 'fs';
 import logger from '../logger';
 
 const close = async (
-  transaction: TypeDBTransaction | undefined,
-  session: TypeDBSession | undefined,
+  session: Session,
+  transaction: Transaction,
 ): Promise<void> => {
   if (transaction?.isOpen()) {
     await transaction.close();
@@ -21,10 +19,10 @@ const close = async (
 
 const defineRole = async (
   driver: TypeDBDriver,
-  database: string,
+  databaseName: string,
 ): Promise<void> => {
-  let session: TypeDBSession | undefined;
-  let transaction: TypeDBTransaction | undefined;
+  let session: Session;
+  let transaction: Transaction;
 
   try {
     const ctiRules: string = fs.readFileSync(
@@ -32,7 +30,7 @@ const defineRole = async (
       'utf8',
     );
 
-    session = await driver.session(database, SessionType.SCHEMA);
+    session = await driver.session(databaseName, SessionType.SCHEMA);
     transaction = await session.transaction(TransactionType.WRITE);
 
     await transaction.query.define(ctiRules);
@@ -41,16 +39,16 @@ const defineRole = async (
     console.error(error);
     await transaction?.rollback();
   } finally {
-    await close(transaction, session);
+    await close(session, transaction);
   }
 };
 
 const defineSchema = async (
   driver: TypeDBDriver,
-  database: string,
+  databaseName: string,
 ): Promise<void> => {
-  let session: TypeDBSession | undefined;
-  let transaction: TypeDBTransaction | undefined;
+  let session: Session;
+  let transaction: Transaction;
 
   try {
     const ctiSchema: string = fs.readFileSync(
@@ -58,7 +56,7 @@ const defineSchema = async (
       'utf8',
     );
 
-    session = await driver.session(database, SessionType.SCHEMA);
+    session = await driver.session(databaseName, SessionType.SCHEMA);
     transaction = await session.transaction(TransactionType.WRITE);
 
     // Cti Schema
@@ -68,31 +66,32 @@ const defineSchema = async (
     console.error(error);
     await transaction?.rollback();
   } finally {
-    await close(transaction, session);
+    await close(session, transaction);
   }
 };
 
 const initializeTypeDB = async (
   typeDBUri: string,
-  database: string,
+  databaseName: string,
 ): Promise<TypeDBDriver> => {
-  let driver: TypeDBDriver | undefined;
+  let driver: Driver;
 
   try {
     // #1 Make driver
     driver = await TypeDB.coreDriver(typeDBUri);
 
-    const isDatabaseExist: boolean = await driver.databases.contains(database);
+    const isDatabaseExist: boolean =
+      await driver.databases.contains(databaseName);
     if (!isDatabaseExist) {
-      await driver.databases.create(database);
+      await driver.databases.create(databaseName);
     }
 
     // #2 Define schema and role
     const define = Boolean(JSON.parse(process.env.DEFINE!));
     if (define) {
       logger.info('Inserting Schema and Rules...');
-      await defineSchema(driver, database);
-      await defineRole(driver, database);
+      await defineSchema(driver, databaseName);
+      await defineRole(driver, databaseName);
       logger.info('Successfully committed Schema and Rules.');
     }
   } catch (error) {

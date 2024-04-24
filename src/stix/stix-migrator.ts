@@ -7,15 +7,15 @@ import logger from '../logger';
 class STIXMigrator {
   inserter: TypeDBInserter;
 
-  constructor(driver: TypeDBDriver, database: string) {
-    this.inserter = new TypeDBInserter(driver, database);
+  constructor(driver: TypeDBDriver, databaseName: string) {
+    this.inserter = new TypeDBInserter(driver, databaseName);
   }
 
-  async migrate() {
+  async migrate(): Promise<void> {
     logger.info('Inserting Data...');
 
     // Parse MITRE ATT&CK JSON files
-    const STIXObjectList = this.readSTIXObjectsJson();
+    const STIXObjectList = this.readSTIXMitreAttackJSON();
 
     // Generate Insert QueryList & insert to TypeDB
     const insertQueryGenerator: STIXInsertGenerator = new STIXInsertGenerator(
@@ -28,20 +28,21 @@ class STIXMigrator {
     // this.migrateKillChainPhases();
     // this.migrateExternalReferences();
 
-    logger.info('Successfully inserted data');
+    logger.info('👏 Successfully inserted data');
   }
 
-  readSTIXObjectsJson() {
+  readSTIXMitreAttackJSON(): STIXObject[] {
     const mitreVersion: string = process.env.MITRE_ATTACK_VERSION!;
     const enterpriseAttack = fs.readFileSync(
       `./mitre/enterprise-attack-${mitreVersion}.json`,
       'utf8',
     );
-
     return JSON.parse(enterpriseAttack).objects;
   }
 
-  async migrateSTIXObjects(insertQueryGenerator: STIXInsertGenerator) {
+  async migrateSTIXObjects(
+    insertQueryGenerator: STIXInsertGenerator,
+  ): Promise<void> {
     // Generate reference STIX object insert queries
     const { referencedQueryList, referencedProcessedIds } =
       insertQueryGenerator.referencedSTIXObjects();

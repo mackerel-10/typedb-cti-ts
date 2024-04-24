@@ -8,9 +8,9 @@ class STIXInsertGenerator {
     this.STIXObjectList = STIXObjectList;
   }
 
-  referencedSTIXObjects() {
+  referencedSTIXObjects(): ReferencedQueryAndId {
     // Get reference id
-    const referencedIds: Set<string> = new Set();
+    const referencedIds: Set<Id> = new Set();
     for (const STIXObject of this.STIXObjectList) {
       const createdByRef: string | undefined = STIXObject.created_by_ref;
       if (createdByRef && !referencedIds.has(createdByRef)) {
@@ -19,7 +19,7 @@ class STIXInsertGenerator {
     }
 
     // Generate insert query of reference STIX object
-    const queryList: Set<string> = new Set();
+    const queryList: Set<Query> = new Set();
     for (const STIXObject of this.STIXObjectList) {
       for (const referencedId of referencedIds) {
         if (STIXObject.id === referencedId) {
@@ -42,9 +42,9 @@ class STIXInsertGenerator {
     };
   }
 
-  statementMarkings() {
-    const queryList: Set<string> = new Set();
-    const processedIds: Set<string> = new Set();
+  statementMarkings(): MarkingQueryAndId {
+    const queryList: Set<Query> = new Set();
+    const processedIds: Set<Id> = new Set();
 
     for (const STIXObject of this.STIXObjectList) {
       if (
@@ -69,7 +69,9 @@ class STIXInsertGenerator {
     };
   }
 
-  STIXObjectsAndMarkingRelations(excludeIds: string[]) {
+  STIXObjectsAndMarkingRelations(
+    excludeIds: Id[],
+  ): EntityQueryAndMarkingRelations {
     const STIXEntityQueryList: Set<Query> = new Set();
     const STIXObjectsWithMarkingRefs: STIXObject[] = [];
     const ignoreDeprecated: boolean = Boolean(
@@ -97,12 +99,12 @@ class STIXInsertGenerator {
         }
 
         STIXEntityQueryList.add(
-          this.generateSTIXQuery(STIXObject, STIXObjectType),
+          this.generateSTIXEntityQuery(STIXObject, STIXObjectType),
         );
       }
     }
 
-    const markingRelationsQueryList = this.markingRelations(
+    const markingRelationsQueryList: Set<Query> = this.markingRelations(
       STIXObjectsWithMarkingRefs,
     );
     logger.info(`Skipped ${ignoredObjects} deprecated objects`);
@@ -118,8 +120,11 @@ class STIXInsertGenerator {
     };
   }
 
-  generateSTIXQuery(STIXObject: STIXObject, STIXObjectType: string): Query {
-    const STIXMap = STIXEntityToTypeDB(STIXObjectType);
+  generateSTIXEntityQuery(
+    STIXObject: STIXObject,
+    STIXObjectType: string,
+  ): Query {
+    const STIXMap: STIXMap = STIXEntityToTypeDB(STIXObjectType);
     let query: Query;
 
     if (STIXMap.customType) {

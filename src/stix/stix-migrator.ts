@@ -17,6 +17,9 @@ class STIXMigrator {
     // Parse MITRE ATT&CK JSON files
     const STIXObjectList = this.readSTIXMitreAttackJSON();
 
+    // Get TypeList of MITRE ATT&CK Enterprise version
+    // const typeList: string[] = this.getTypeListOfMitreAttack(STIXObjectList);
+
     // Generate Insert QueryList & insert to TypeDB
     const insertQueryGenerator: STIXInsertGenerator = new STIXInsertGenerator(
       STIXObjectList,
@@ -37,6 +40,7 @@ class STIXMigrator {
       `./mitre/enterprise-attack-${mitreVersion}.json`,
       'utf8',
     );
+
     return JSON.parse(enterpriseAttack).objects;
   }
 
@@ -59,6 +63,16 @@ class STIXMigrator {
       insertQueryGenerator.STIXObjectsAndMarkingRelations(STIXIdsProcessed); // Exclude processed STIX objects
     await this.inserter.insert(STIXEntityQueryList);
     await this.inserter.insert(markingRelations);
+  }
+
+  getTypeListOfMitreAttack(STIXObjectList: STIXObject[]): string[] {
+    const type = new Set<string>();
+
+    STIXObjectList.forEach((STIXObject: STIXObject) => {
+      type.add(STIXObject.type);
+    });
+
+    return [...type];
   }
 }
 

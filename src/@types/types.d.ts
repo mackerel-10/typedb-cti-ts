@@ -68,11 +68,6 @@ interface STIXObject extends Record<string, string | STIXEntity> {
   revoked: boolean;
   identity_class: string;
 
-  // external_references
-  source_name: string;
-  url: string;
-  external_id: string;
-
   // markings
   definition_type: string;
   definition: {
@@ -92,8 +87,12 @@ interface STIXObject extends Record<string, string | STIXEntity> {
 
   // kill chain phases
   kill_chain_phases: KillChainPhase[];
+
+  // external_references
+  external_references: ExternalReference[];
 }
 
+// Kill Chain Phases
 type KillChainName = string;
 type PhaseName = string;
 type KillChainTuple = [KillChainName, PhaseName];
@@ -106,6 +105,19 @@ interface KillChainPhase {
 interface KillChainUsage {
   usedId: string;
   killChainPhase: KillChainPhase;
+}
+
+// External References
+interface ExternalReference {
+  /*{
+    "source_name": "mitre-attack",
+    "url": "https://attack.mitre.org/techniques/T1053/005",
+    "external_id": "T1053.005"
+  },*/
+  source_name: string;
+  url: string;
+  external_id?: string;
+  description?: string;
 }
 
 // STIX Objects And Marking Relations
@@ -127,4 +139,9 @@ interface EntityQueryAndMarkingRelations {
 interface KillChainPhaseListAndUsages {
   killChainPhaseList: Query[];
   killChainPhaseUsages: Query[];
+}
+
+interface ExternalRefereceListAndRelations {
+  externalReferenceList: Query[];
+  externalReferenceRelations: Query[];
 }

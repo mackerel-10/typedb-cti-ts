@@ -289,6 +289,29 @@ class STIXInsertGenerator {
     };
   }
 
+  externalReferences() {
+    const attributeMapping: STIXAttributeMapper = STIXAttributesToTypeDB();
+    const externalReferenceList: Set<Query> = new Set<Query>();
+    const externalReferenceRelations: Set<Query> = new Set<Query>();
+    // filter out objects with external references
+    const objectWithExternalReferences: STIXObject[] =
+      this.STIXObjectList.filter(
+        (STIXObject) => STIXObject.external_references,
+      );
+
+    for (const STIXObject of objectWithExternalReferences) {
+      const matchOwner: Query = `match $x has stix-id '${STIXObject.id}'`;
+      for (const externalReference of STIXObject.external_references) {
+        const externalReferenceAttributes: Query = '';
+      }
+    }
+
+    return {
+      externalReferenceList: [...externalReferenceList],
+      externalReferenceRelations: [...externalReferenceRelations],
+    };
+  }
+
   attributes(STIXObject: STIXObject): Query {
     let query: Query = '';
     const typeDBAttributes: STIXAttributeMapper = STIXAttributesToTypeDB();

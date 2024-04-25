@@ -27,13 +27,13 @@ class STIXMigrator {
 
     // Insert STIX objects To Entity
     logger.info('1️⃣Inserting STIX Objects...');
-    // await this.migrateSTIXObjects(insertQueryGenerator);
+    await this.migrateSTIXObjects(insertQueryGenerator);
     logger.info('2️⃣Inserting STIX Relationships...');
-    // await this.migrateSTIXRelationships(insertQueryGenerator);
+    await this.migrateSTIXRelationships(insertQueryGenerator);
     logger.info('3️⃣Inserting STIX Kill Chain Phases...');
     await this.migrateKillChainPhases(insertQueryGenerator);
     logger.info('4️⃣Inserting STIX External References...');
-    // this.migrateExternalReferences();
+    // await this.migrateExternalReferences(insertQueryGenerator);
 
     logger.info('👏Successfully inserted data');
   }
@@ -87,12 +87,14 @@ class STIXMigrator {
     await this.inserter.insert(killChainPhaseUsages);
   }
 
-  /*async migrateExternalReferences(insertQueryGenerator: STIXInsertGenerator): Promise<void> {
+  async migrateExternalReferences(
+    insertQueryGenerator: STIXInsertGenerator,
+  ): Promise<void> {
     const externalReferences = insertQueryGenerator.externalReferences();
 
-    await this.inserter.insert(externalReferences.externalReferences);
-    await this.inserter.insert(externalReferences.externalReferencesRelations);
-  }*/
+    // await this.inserter.insert(externalReferences.externalReferences);
+    // await this.inserter.insert(externalReferences.externalReferencesRelations);
+  }
 
   getTypeListOfMitreAttack(STIXObjectList: STIXObject[]): string[] {
     const type = new Set<string>();

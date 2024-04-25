@@ -58,6 +58,7 @@ class TypeDBInserter {
       await transaction.commit();
     } catch (error) {
       console.error(error);
+      logger.error(error);
       await transaction?.rollback();
     } finally {
       await close(transaction, session);

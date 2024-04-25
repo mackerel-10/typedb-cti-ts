@@ -24,7 +24,7 @@ type STIXRelation =
   | 'derives'
   | 'duplicate-of'
   | 'related-to';
-/*type STIXAttribute =
+type STIXAttribute =
   | 'id'
   | 'created'
   | 'modified'
@@ -36,13 +36,15 @@ type STIXRelation =
   | 'is_family'
   | 'source_name'
   | 'url'
-  | 'external_id';*/
+  | 'external_id';
 
 // Type Mapping Interface
 interface STIXMap {
-  // Entity: type, customType, ignore
-  // Relation: type, activeRole, passiveRole, STIXType
-  // Attribute: type, value
+  /*
+   * Entity: type, customType, ignore
+   * Relation: type, activeRole, passiveRole, STIXType
+   * Attribute: type, value
+   */
   type: string;
   [key: string]: string | boolean;
   STIXType?: string;
@@ -87,8 +89,26 @@ interface STIXObject extends Record<string, string | STIXEntity> {
   source_ref: string;
   target_ref: string;
   relationship_type: STIXRelation;
+
+  // kill chain phases
+  kill_chain_phases: KillChainPhase[];
 }
 
+type KillChainName = string;
+type PhaseName = string;
+type KillChainTuple = [KillChainName, PhaseName];
+
+interface KillChainPhase {
+  kill_chain_name: KillChainName;
+  phase_name: PhaseName;
+}
+
+interface KillChainUsage {
+  usedId: string;
+  killChainPhase: KillChainPhase;
+}
+
+// STIX Objects And Marking Relations
 interface ReferencedQueryAndId {
   referencedQueryList: Query[];
   referencedProcessedIds: Id[];
@@ -102,4 +122,9 @@ interface MarkingQueryAndId {
 interface EntityQueryAndMarkingRelations {
   STIXEntityQueryList: Query[];
   markingRelations: Query[];
+}
+
+interface KillChainPhaseListAndUsages {
+  killChainPhaseList: Query[];
+  killChainPhaseUsages: Query[];
 }

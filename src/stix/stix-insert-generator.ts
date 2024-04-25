@@ -4,7 +4,6 @@ import {
   STIXRelationToTypeDB,
 } from './type-mapping';
 import logger from '../logger';
-import STIXMigrator from './stix-migrator';
 
 class STIXInsertGenerator {
   STIXObjectList: STIXObject[];
@@ -102,7 +101,7 @@ class STIXInsertGenerator {
         }
 
         STIXEntityQueryList.add(
-          this.generateSTIXEntityQuery(STIXObject, STIXObjectType),
+          this.generateSTIXEntitiesInsertQuery(STIXObject, STIXObjectType),
         );
       }
     }
@@ -123,7 +122,7 @@ class STIXInsertGenerator {
     };
   }
 
-  generateSTIXEntityQuery(
+  generateSTIXEntitiesInsertQuery(
     STIXObject: STIXObject,
     STIXObjectType: string,
   ): Query {
@@ -215,7 +214,79 @@ class STIXInsertGenerator {
   }
 
   killChainPhases() {
-    const killChainUsages = [];
+    const killChainUsages: KillChainUsage[] = [];
+    const killChainUsagesFlattened: Set<KillChainTuple> =
+      new Set<KillChainTuple>();
+
+    for (const STIXObject of this.STIXObjectList) {
+      if (STIXObject.kill_chain_phases) {
+        for (const killChainPhase of STIXObject.kill_chain_phases) {
+          killChainUsages.push({
+            usedId: STIXObject.id,
+            killChainPhase,
+          });
+          killChainUsagesFlattened.add([
+            killChainPhase.kill_chain_name,
+            killChainPhase.phase_name,
+          ]);
+        }
+      }
+    }
+
+    const { killChainPhaseList, killChainPhaseUsages } =
+      this.generateKillChainQueryList(
+        killChainUsagesFlattened,
+        killChainUsages,
+      );
+    logger.info(
+      `Generated ${killChainPhaseList.length} insert queries for kill chain phase entities`,
+    );
+    logger.info(
+      `Generated ${killChainPhaseUsages.length} insert queries for kill chain phase usage relations`,
+    );
+    return {
+      killChainPhaseList,
+      killChainPhaseUsages,
+    };
+  }
+
+  generateKillChainQueryList(
+    killChainUsagesFlattened: Set<KillChainTuple>,
+    killChainUsages: KillChainUsage[],
+  ): KillChainPhaseListAndUsages {
+    const killChainPhaseList: Set<Query> = new Set<Query>();
+    const killChainPhaseUsages: Set<Query> = new Set<Query>();
+
+    for (const killChainUsage of killChainUsagesFlattened) {
+      // killChainUsage[0] = kill_chain_name, killChainUsage[1] = phase_name
+      killChainPhaseList.add(`
+        insert $x isa kill-chain-phase,
+          has kill-chain-name '${killChainUsage[0]}',
+          has phase-name '${killChainUsage[1]}';
+      `);
+    }
+
+    for (const killChainUsage of killChainUsages) {
+      const killChainName: string =
+        killChainUsage.killChainPhase.kill_chain_name;
+      const killChainPhase: string = killChainUsage.killChainPhase.phase_name;
+
+      killChainPhaseUsages.add(`
+        match
+          $x isa thing,
+            has stix-id '${killChainUsage.usedId}';
+          $kill-chain-phase isa kill-chain-phase,
+            has kill-chain-name '${killChainName}',        
+            has phase-name '${killChainPhase}';
+        insert
+          (kill-chain-used: $x, kill-chain-using: $kill-chain-phase) isa kill-chain-usage;
+      `);
+    }
+
+    return {
+      killChainPhaseList: [...killChainPhaseList],
+      killChainPhaseUsages: [...killChainPhaseUsages],
+    };
   }
 
   attributes(STIXObject: STIXObject): Query {

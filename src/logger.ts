@@ -9,7 +9,6 @@ const logFormat = printf(({ level, message, label, timestamp }) => {
 });
 
 const logger = winston.createLogger({
-  level: 'info',
   format: combine(
     timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     label({ label: 'MITRE ATT&CK Migrator' }),
@@ -19,9 +18,18 @@ const logger = winston.createLogger({
   transports: [
     new winston.transports.Console(),
     new DailyRotateFile({
+      level: 'info',
       filename: '%DATE%.log',
       datePattern: 'YYYY-MM-DD',
       dirname: logDir,
+      maxFiles: 30,
+    }),
+    new DailyRotateFile({
+      level: 'error',
+      filename: '%DATE%-error.log',
+      datePattern: 'YYYY-MM-DD',
+      dirname: logDir + '/error',
+      maxFiles: 30,
     }),
   ],
 });

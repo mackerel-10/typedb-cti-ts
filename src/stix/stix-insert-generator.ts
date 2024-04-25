@@ -1,5 +1,10 @@
-import { STIXAttributesToTypeDB, STIXEntityToTypeDB } from './type-mapping';
+import {
+  STIXAttributesToTypeDB,
+  STIXEntityToTypeDB,
+  STIXRelationToTypeDB,
+} from './type-mapping';
 import logger from '../logger';
+import STIXMigrator from './stix-migrator';
 
 class STIXInsertGenerator {
   STIXObjectList: STIXObject[];
@@ -27,7 +32,7 @@ class STIXInsertGenerator {
           if (entityType === 'identity') {
             entityType = STIXObject.identity_class;
           }
-          const query = `insert $x isa ${entityType}, ${this.attribute(STIXObject)};`;
+          const query = `insert $x isa ${entityType}, ${this.attributes(STIXObject)};`;
           queryList.add(query);
         }
       }
@@ -80,20 +85,18 @@ class STIXInsertGenerator {
     let ignoredObjects: number = 0;
 
     for (const STIXObject of this.STIXObjectList) {
-      const STIXObjectType: string = STIXObject.type;
-
-      // Don't insert the object if it's deprecated.
-      // x_mitre_deprecated === true, we will skip this objects when ignoreDeprecated is true
+      // Don't insert the object if it's deprecated(x_mitre_deprecated).
       if (ignoreDeprecated && STIXObject.x_mitre_deprecated) {
         ignoredObjects++;
         continue;
       }
 
-      // type !== relationship && not in excludeIds
+      const STIXObjectType: string = STIXObject.type;
       if (
         STIXObjectType !== 'relationship' &&
         !excludeIds.includes(STIXObject.id)
       ) {
+        // type !== relationship && not in excludeIds
         if (STIXObject.object_marking_refs) {
           STIXObjectsWithMarkingRefs.push(STIXObject);
         }
@@ -142,7 +145,7 @@ class STIXInsertGenerator {
     query = `
       insert
         ${query},
-        ${this.attribute(STIXObject)};
+        ${this.attributes(STIXObject)};
     `;
 
     if (STIXObject.created_by_ref) {
@@ -175,7 +178,47 @@ class STIXInsertGenerator {
     return queryList;
   }
 
-  attribute(STIXObject: STIXObject): Query {
+  STIXRelationships(): Query[] {
+    const relationQueryList: Set<Query> = new Set<Query>();
+
+    for (const STIXObject of this.STIXObjectList) {
+      if (STIXObject.type === 'relationship') {
+        const relation: STIXMap = STIXRelationToTypeDB(
+          STIXObject.relationship_type,
+        );
+        let insertQuery: Query;
+
+        if (relation.type === 'stix-core-relationship') {
+          insertQuery = `(${relation.activeRole}: $source, ${relation.passiveRole}: $target)
+            isa ${relation.type},
+            has stix-type '${relation.stixType}'`;
+        } else {
+          insertQuery = `(${relation.activeRole}: $source, ${relation.passiveRole}: $target)
+            isa ${relation.type}`;
+        }
+
+        relationQueryList.add(`
+          match
+            $source has stix-id '${STIXObject.source_ref}';
+            $target has stix-id '${STIXObject.target_ref}';
+          insert
+            ${insertQuery},
+            ${this.attributes(STIXObject)};
+        `);
+      }
+    }
+
+    logger.info(
+      `Generated ${relationQueryList.size} insert queries for relationships`,
+    );
+    return [...relationQueryList];
+  }
+
+  killChainPhases() {
+    const killChainUsages = [];
+  }
+
+  attributes(STIXObject: STIXObject): Query {
     let query: Query = '';
     const typeDBAttributes: STIXAttributeMapper = STIXAttributesToTypeDB();
 
@@ -189,7 +232,7 @@ class STIXInsertGenerator {
 
         switch (STIXValueType) {
           case 'string':
-            query += ` has ${typeQLAttributeType} '${STIXValue.replace(/'/g, '"')}',`;
+            query += ` has ${typeQLAttributeType} '${STIXValue.replace(/'/g, '"').trim()}',`;
             break;
           case 'boolean':
             query += ` has ${typeQLAttributeType} ${STIXValue},`;

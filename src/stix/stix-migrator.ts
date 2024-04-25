@@ -12,7 +12,7 @@ class STIXMigrator {
   }
 
   async migrate(): Promise<void> {
-    logger.info('Inserting Data...');
+    logger.info('🏁Start Inserting MITRE ATT&CK Enterprise Attack Data...');
 
     // Parse MITRE ATT&CK JSON files
     const STIXObjectList = this.readSTIXMitreAttackJSON();
@@ -26,12 +26,16 @@ class STIXMigrator {
     );
 
     // Insert STIX objects To Entity
-    await this.migrateSTIXObjects(insertQueryGenerator);
-    // this.migrateSTIXRelationships();
-    // this.migrateKillChainPhases();
+    logger.info('1️⃣Inserting STIX Objects...');
+    // await this.migrateSTIXObjects(insertQueryGenerator);
+    logger.info('2️⃣Inserting STIX Relationships...');
+    await this.migrateSTIXRelationships(insertQueryGenerator);
+    logger.info('3️⃣Inserting STIX Kill Chain Phases...');
+    // await this.migrateKillChainPhases(insertQueryGenerator);
+    logger.info('4️⃣Inserting STIX External References...');
     // this.migrateExternalReferences();
 
-    logger.info('👏 Successfully inserted data');
+    logger.info('👏Successfully inserted data');
   }
 
   readSTIXMitreAttackJSON(): STIXObject[] {
@@ -64,6 +68,30 @@ class STIXMigrator {
     await this.inserter.insert(STIXEntityQueryList);
     await this.inserter.insert(markingRelations);
   }
+
+  async migrateSTIXRelationships(
+    insertQueryGenerator: STIXInsertGenerator,
+  ): Promise<void> {
+    const relations = insertQueryGenerator.STIXRelationships();
+
+    await this.inserter.insert(relations);
+  }
+
+  async migrateKillChainPhases(
+    insertQueryGenerator: STIXInsertGenerator,
+  ): Promise<void> {
+    const phasesAndUsages = insertQueryGenerator.killChainPhases();
+
+    // await this.inserter.insert(phasesAndUsages.killChainPhases);
+    // await this.inserter.insert(phasesAndUsages.killChainPhasesUsages);
+  }
+
+  /*async migrateExternalReferences(insertQueryGenerator: STIXInsertGenerator): Promise<void> {
+    const externalReferences = insertQueryGenerator.externalReferences();
+
+    await this.inserter.insert(externalReferences.externalReferences);
+    await this.inserter.insert(externalReferences.externalReferencesRelations);
+  }*/
 
   getTypeListOfMitreAttack(STIXObjectList: STIXObject[]): string[] {
     const type = new Set<string>();

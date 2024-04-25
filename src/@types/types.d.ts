@@ -38,7 +38,11 @@ type STIXRelation =
   | 'url'
   | 'external_id';*/
 
+// Type Mapping Interface
 interface STIXMap {
+  // Entity: type, customType, ignore
+  // Relation: type, activeRole, passiveRole, STIXType
+  // Attribute: type, value
   type: string;
   [key: string]: string | boolean;
   STIXType?: string;
@@ -76,7 +80,13 @@ interface STIXObject extends Record<string, string | STIXEntity> {
   // deprecated
   x_mitre_deprecated: boolean;
 
+  // marking-definition
   object_marking_refs: string[];
+
+  // relation
+  source_ref: string;
+  target_ref: string;
+  relationship_type: STIXRelation;
 }
 
 interface ReferencedQueryAndId {

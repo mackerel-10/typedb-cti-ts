@@ -103,7 +103,7 @@ hash sub entity,
 	ssdeep sub hash; 
 	tlsh sub hash; 
 
-# 2.11 Kill Chane Phase
+# 2.11 Kill Chain Phase
 kill-chain-usage sub stix-core-relationship,
 	relates kill-chain-used,
 	relates kill-chain-using;
@@ -161,7 +161,7 @@ attack-pattern sub stix-domain-object,
 campaign sub stix-domain-object, 
 	owns name, 
 	owns description, 
-	owns alias, 
+	owns alias,
 	owns first-seen,
 	owns last-seen,
 	owns objective, 

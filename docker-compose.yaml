@@ -1,6 +1,5 @@
 services:
   db:
-#    image: vaticle/typedb:2.10.0 # CTI: 2.10.0
     image: vaticle/typedb:2.27.0 # LTS: 2.27.0
     container_name: db-typedb
     ports:
@@ -8,4 +7,3 @@ services:
     platform: linux/amd64 # DB requested image's platform(linux/amd64)
 #    volumes: # For Backup
 #      - ./data:/opt/typedb-all-linux-x86_64/server/data # LTS
-#      - ./data:/opt/typedb-all-linux/server/data # 2.10.0

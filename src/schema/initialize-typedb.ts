@@ -87,8 +87,8 @@ const initializeTypeDB = async (
     }
 
     // #2 Define schema and role
-    const define = Boolean(JSON.parse(process.env.DEFINE!));
-    if (define) {
+    const defineFlag = Boolean(JSON.parse(process.env.DEFINE_FLAG!));
+    if (defineFlag) {
       logger.info('Inserting Schema and Rules...');
       await defineSchema(driver, databaseName);
       await defineRole(driver, databaseName);

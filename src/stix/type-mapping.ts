@@ -1,23 +1,33 @@
 const STIXEntityToTypeDB = (STIXType: STIXEntity): STIXMap => {
   const mapper: Record<string, STIXMap> = {
+    // 4.1 Attack Pattern
     'attack-pattern': {
       type: 'attack-pattern',
       customType: false,
       ignore: false,
     },
-    tool: { type: 'tool', customType: false, ignore: false },
-    identity: { type: 'identity', customType: false, ignore: false },
+    // 4.2 Campaign
+    campaign: { type: 'campaign', customType: false, ignore: false },
+    // 4.3 Course of Action
     'course-of-action': {
       type: 'course-of-action',
       customType: false,
       ignore: false,
     },
-    malware: { type: 'malware', customType: false, ignore: false },
+    // 4.5 Identity
+    identity: { type: 'identity', customType: false, ignore: false },
+    // 4.8 Intrusion Set
     'intrusion-set': {
       type: 'intrusion-set',
       customType: false,
       ignore: false,
     },
+    // 4.10 Malware
+    malware: { type: 'malware', customType: false, ignore: false },
+    // 4.17 Tool
+    tool: { type: 'tool', customType: false, ignore: false },
+
+    // Marking Definition
     'marking-definition': {
       type: 'marking-definition',
       customType: false,
@@ -96,7 +106,7 @@ const STIXAttributesToTypeDB = (): STIXAttributeMapper => {
     id: { type: 'stix-id', value: 'string' },
     created: { type: 'created', value: 'string' },
     modified: { type: 'modified', value: 'string' },
-    spec_version: { type: 'spec-version', value: 'string' },
+    'spec-version': { type: 'spec-version', value: 'string' },
     description: { type: 'description', value: 'string' },
     name: { type: 'name', value: 'string' },
     aliases: { type: 'alias', value: 'list' },

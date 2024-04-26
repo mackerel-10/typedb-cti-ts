@@ -15,7 +15,7 @@ class STIXInsertGenerator {
   referencedSTIXObjects(): ReferencedQueryAndId {
     const referencedIds: Set<Id> = new Set<Id>();
     for (const STIXObject of this.STIXObjectList) {
-      if (STIXObject.createdByRef) {
+      if (STIXObject.created_by_ref) {
         referencedIds.add(STIXObject.created_by_ref);
       }
     }
@@ -76,8 +76,9 @@ class STIXInsertGenerator {
   STIXObjectsAndMarkingRelations(
     excludeIds: Id[],
   ): STIXEntitiesAndMarkingRelations {
-    const STIXEntities: Set<Query> = new Set();
-    const STIXObjectsWithMarkingRefs: STIXObject[] = [];
+    const STIXEntities: Set<Query> = new Set<Query>();
+    const STIXObjectsWithMarkingReferences: STIXObject[] = [];
+
     const ignoreDeprecated: boolean = Boolean(
       JSON.parse(process.env.IGNORE_DEPRECATED!),
     );
@@ -90,47 +91,41 @@ class STIXInsertGenerator {
         continue;
       }
 
-      const STIXObjectType: string = STIXObject.type;
       if (
-        STIXObjectType !== 'relationship' &&
-        !excludeIds.includes(STIXObject.id)
+        STIXObject.type !== 'relationship' &&
+        !excludeIds.includes(STIXObject.id) // Exclude processed STIX objects
       ) {
-        // type !== relationship && not in excludeIds
         if (STIXObject.object_marking_refs) {
-          STIXObjectsWithMarkingRefs.push(STIXObject);
+          STIXObjectsWithMarkingReferences.push(STIXObject);
         }
 
-        STIXEntities.add(
-          this.generateSTIXEntitiesInsertQuery(STIXObject, STIXObjectType),
-        );
+        STIXEntities.add(this.generateSTIXEntitiesQuery(STIXObject));
       }
     }
 
-    const markingRelationsQueryList: Set<Query> = this.markingRelations(
-      STIXObjectsWithMarkingRefs,
+    const markingRelations: Query[] = this.markingRelations(
+      STIXObjectsWithMarkingReferences,
     );
+
     logger.info(`Skipped ${ignoredObjects} deprecated objects`);
     logger.info(
       `Generated ${STIXEntities.size} insert queries for STIXObjects`,
     );
     logger.info(
-      `Generated ${markingRelationsQueryList.size} insert queries for marking relations`,
+      `Generated ${markingRelations.length} insert queries for marking relations`,
     );
     return {
       STIXEntities: [...STIXEntities],
-      markingRelations: [...markingRelationsQueryList],
+      markingRelations,
     };
   }
 
-  generateSTIXEntitiesInsertQuery(
-    STIXObject: STIXObject,
-    STIXObjectType: string,
-  ): Query {
-    const STIXMap: STIXMap = STIXEntityToTypeDB(STIXObjectType);
-    let query: Query;
+  generateSTIXEntitiesQuery(STIXObject: STIXObject): Query {
+    const STIXMap: STIXMap = STIXEntityToTypeDB(STIXObject.type);
+    let insertQuery: Query;
 
     if (STIXMap.customType) {
-      query = `$stix isa custom-object, has stix-type '${STIXMap.type}'`;
+      insertQuery = `$stix isa custom-object, has stix-type '${STIXMap.type}'`;
     } else {
       let entityType: string;
 
@@ -139,29 +134,28 @@ class STIXInsertGenerator {
       } else {
         entityType = STIXObject.type;
       }
-      query = `$stix isa ${entityType}`;
+      insertQuery = `$stix isa ${entityType}`;
     }
-    query = `
+
+    insertQuery = `
       insert
-        ${query},
-        ${this.attributes(STIXObject)};
-    `;
+        ${insertQuery},
+        ${this.attributes(STIXObject)};`;
 
     if (STIXObject.created_by_ref) {
       // We expect creating STIX objects to be inserted before
-      query = `
+      return `
         match
           $creator isa thing, has stix-id '${STIXObject.created_by_ref}';
-        ${query}
-        (created: $stix, creator: $creator) isa creation;
-      `;
+        ${insertQuery}
+        (created: $stix, creator: $creator) isa creation;`;
     }
 
-    return query;
+    return insertQuery;
   }
 
-  markingRelations(STIXObjectsWithMarkingRefs: STIXObject[]): Set<Query> {
-    const queryList: Set<Query> = new Set();
+  markingRelations(STIXObjectsWithMarkingRefs: STIXObject[]): Query[] {
+    const queryList: Set<Query> = new Set<Query>();
 
     for (const STIXObject of STIXObjectsWithMarkingRefs) {
       queryList.add(`
@@ -170,11 +164,10 @@ class STIXInsertGenerator {
           $marking isa marking-definition,
             has stix-id '${STIXObject.object_marking_refs[0]}';
         insert
-          (marked: $x, marking: $marking) isa object-marking;
-      `);
+          (marked: $x, marking: $marking) isa object-marking;`);
     }
 
-    return queryList;
+    return [...queryList];
   }
 
   STIXRelationships(): Query[] {

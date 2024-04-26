@@ -27,9 +27,9 @@ class STIXMigrator {
 
     // Insert STIX objects To Entity
     logger.info('1️⃣Inserting STIX Objects...');
-    await this.migrateSTIXObjects(insertQueryGenerator);
+    // await this.migrateSTIXObjects(insertQueryGenerator);
     logger.info('2️⃣Inserting STIX Relationships...');
-    // await this.migrateSTIXRelationships(insertQueryGenerator);
+    await this.migrateSTIXRelationships(insertQueryGenerator);
     logger.info('3️⃣Inserting STIX Kill Chain Phases...');
     // await this.migrateKillChainPhases(insertQueryGenerator);
     logger.info('4️⃣Inserting STIX External References...');

@@ -172,32 +172,32 @@ class STIXInsertGenerator {
 
   STIXRelationships(): Query[] {
     const relationQueryList: Set<Query> = new Set<Query>();
+    const relationSTIXObjectList: STIXObject[] = this.STIXObjectList.filter(
+      (STIXObject) => STIXObject.type === 'relationship',
+    );
 
-    for (const STIXObject of this.STIXObjectList) {
-      if (STIXObject.type === 'relationship') {
-        const relation: STIXMap = STIXRelationToTypeDB(
-          STIXObject.relationship_type,
-        );
-        let insertQuery: Query;
+    for (const STIXObject of relationSTIXObjectList) {
+      const relation: STIXMap = STIXRelationToTypeDB(
+        STIXObject.relationship_type,
+      );
+      let insertQuery: Query;
 
-        if (relation.type === 'stix-core-relationship') {
-          insertQuery = `(${relation.activeRole}: $source, ${relation.passiveRole}: $target)
-            isa ${relation.type},
+      if (relation.type === 'stix-core-relationship') {
+        insertQuery = `
+          (${relation.activeRole}: $source, ${relation.passiveRole}: $target) isa ${relation.type},
             has stix-type '${relation.stixType}'`;
-        } else {
-          insertQuery = `(${relation.activeRole}: $source, ${relation.passiveRole}: $target)
-            isa ${relation.type}`;
-        }
+      } else {
+        insertQuery = `
+          (${relation.activeRole}: $source, ${relation.passiveRole}: $target) isa ${relation.type}`;
+      }
 
-        relationQueryList.add(`
+      relationQueryList.add(`
           match
             $source has stix-id '${STIXObject.source_ref}';
             $target has stix-id '${STIXObject.target_ref}';
           insert
             ${insertQuery},
-            ${this.attributes(STIXObject)};
-        `);
-      }
+            ${this.attributes(STIXObject)};`);
     }
 
     logger.info(

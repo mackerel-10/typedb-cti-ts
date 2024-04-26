@@ -9,29 +9,42 @@ const logFormat = printf(({ level, message, label, timestamp }) => {
 });
 
 const logger = winston.createLogger({
-  format: combine(
-    timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-    label({ label: 'MITRE ATT&CK Migrator' }),
-    logFormat,
-  ),
-  defaultMeta: { service: 'MITRE-ATT&CK-migrator' },
+  format: combine(timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), logFormat),
+  defaultMeta: { label: 'MITRE-ATT&CK-migrator' },
   transports: [
-    new winston.transports.Console(),
     new DailyRotateFile({
       level: 'info',
-      filename: '%DATE%.log',
       datePattern: 'YYYY-MM-DD',
       dirname: logDir,
+      filename: '%DATE%.log',
       maxFiles: 30,
     }),
     new DailyRotateFile({
       level: 'error',
-      filename: '%DATE%-error.log',
       datePattern: 'YYYY-MM-DD',
       dirname: logDir + '/error',
+      filename: '%DATE%-error.log',
+      maxFiles: 30,
+    }),
+  ],
+  exceptionHandlers: [
+    new DailyRotateFile({
+      level: 'error',
+      datePattern: 'YYYY-MM-DD',
+      dirname: logDir + '/exceptions',
+      filename: '%DATE%-exceptions.log',
       maxFiles: 30,
     }),
   ],
 });
+
+logger.add(
+  new winston.transports.Console({
+    format: winston.format.combine(
+      winston.format.colorize(),
+      winston.format.simple(),
+    ),
+  }),
+);
 
 export default logger;

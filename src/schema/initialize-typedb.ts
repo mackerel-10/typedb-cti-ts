@@ -36,7 +36,9 @@ const defineRole = async (
     await transaction.query.define(ctiRules);
     await transaction.commit();
   } catch (error) {
-    console.error(error);
+    if (error instanceof Error) {
+      logger.error(`${error.message}`, { stack: error.stack });
+    }
     await transaction?.rollback();
   } finally {
     await close(session, transaction);
@@ -63,7 +65,9 @@ const defineSchema = async (
     await transaction.query.define(ctiSchema);
     await transaction.commit();
   } catch (error) {
-    console.error(error);
+    if (error instanceof Error) {
+      logger.error(`${error.message}`, { stack: error.stack });
+    }
     await transaction?.rollback();
   } finally {
     await close(session, transaction);
@@ -95,7 +99,9 @@ const initializeTypeDB = async (
       logger.info('Successfully committed Schema and Rules.');
     }
   } catch (error) {
-    console.error(error);
+    if (error instanceof Error) {
+      logger.error(`${error.message}`, { stack: error.stack });
+    }
   }
 
   if (!driver) {

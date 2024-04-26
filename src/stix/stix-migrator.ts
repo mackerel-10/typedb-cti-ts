@@ -34,7 +34,6 @@ class STIXMigrator {
     await this.migrateKillChainPhases(insertQueryGenerator);
     logger.info('4️⃣Inserting STIX External References...');
     // await this.migrateExternalReferences(insertQueryGenerator);
-
     logger.info('👏Successfully inserted data');
   }
 

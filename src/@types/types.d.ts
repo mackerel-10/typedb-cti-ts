@@ -116,7 +116,7 @@ interface KillChainUsage {
 }
 
 // External References
-interface ExternalReference {
+interface ExternalReference extends Record<string, string> {
   /*{
     "source_name": "mitre-attack",
     "url": "https://attack.mitre.org/techniques/T1053/005",
@@ -149,7 +149,7 @@ interface KillChainPhaseListAndUsages {
   killChainPhaseUsages: Query[];
 }
 
-interface ExternalReferenceListAndRelations {
-  externalReferenceList: Query[];
+interface ExternalReferenceEntitiesAndRelations {
+  externalReferenceEntities: Query[];
   externalReferenceRelations: Query[];
 }

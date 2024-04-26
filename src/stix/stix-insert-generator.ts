@@ -289,9 +289,8 @@ class STIXInsertGenerator {
     };
   }
 
-  externalReferences() {
-    const attributeMapping: STIXAttributeMapper = STIXAttributesToTypeDB();
-    const externalReferenceList: Set<Query> = new Set<Query>();
+  externalReferences(): ExternalReferenceEntitiesAndRelations {
+    const externalReferenceEntities: Set<Query> = new Set<Query>();
     const externalReferenceRelations: Set<Query> = new Set<Query>();
 
     // filter out objects with external references
@@ -301,23 +300,36 @@ class STIXInsertGenerator {
       );
 
     for (const STIXObject of objectWithExternalReferences) {
-      const matchOwner: Query = `match $x has stix-id '${STIXObject.id}'`;
       for (const externalReference of STIXObject.external_references) {
-        const externalReferenceAttributes: Query = '';
-        for (const [STIXKey, STIXValue] of Object.entries(externalReference)) {
-          if (attributeMapping[STIXKey]) {
-          }
-        }
+        const externalReferenceAttributes: Query =
+          this.attributes(externalReference);
+        externalReferenceEntities.add(`
+          insert
+            $er isa external-reference,
+            ${externalReferenceAttributes};`);
+        externalReferenceRelations.add(`
+          match
+            $x has stix-id '${STIXObject.id}';
+            $er isa external-reference,
+            ${externalReferenceAttributes};
+          insert
+            (referencing: $x, referenced: $er) isa external-referencing;`);
       }
     }
 
+    logger.info(
+      `Generated ${externalReferenceEntities.size} insert queries for external references entities`,
+    );
+    logger.info(
+      `Generated ${externalReferenceRelations.size} insert queries for external reference relations`,
+    );
     return {
-      externalReferenceList: [...externalReferenceList],
+      externalReferenceEntities: [...externalReferenceEntities],
       externalReferenceRelations: [...externalReferenceRelations],
     };
   }
 
-  attributes(STIXObject: STIXObject): Query {
+  attributes(STIXObject: STIXObject | ExternalReference): Query {
     let query: Query = '';
     const typeDBAttributes: STIXAttributeMapper = STIXAttributesToTypeDB();
 

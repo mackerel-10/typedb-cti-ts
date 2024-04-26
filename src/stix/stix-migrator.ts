@@ -33,7 +33,7 @@ class STIXMigrator {
     logger.info('3️⃣Inserting STIX Kill Chain Phases...');
     await this.migrateKillChainPhases(insertQueryGenerator);
     logger.info('4️⃣Inserting STIX External References...');
-    // await this.migrateExternalReferences(insertQueryGenerator);
+    await this.migrateExternalReferences(insertQueryGenerator);
     logger.info('👏Successfully inserted data');
   }
 
@@ -89,10 +89,11 @@ class STIXMigrator {
   async migrateExternalReferences(
     insertQueryGenerator: STIXInsertGenerator,
   ): Promise<void> {
-    const externalReferences = insertQueryGenerator.externalReferences();
+    const { externalReferenceEntities, externalReferenceRelations } =
+      insertQueryGenerator.externalReferences();
 
-    // await this.inserter.insert(externalReferences.externalReferences);
-    // await this.inserter.insert(externalReferences.externalReferencesRelations);
+    await this.inserter.insert(externalReferenceEntities);
+    await this.inserter.insert(externalReferenceRelations);
   }
 
   getTypeListOfMitreAttack(STIXObjectList: STIXObject[]): string[] {

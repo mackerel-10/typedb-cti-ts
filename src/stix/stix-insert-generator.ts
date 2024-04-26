@@ -13,32 +13,33 @@ class STIXInsertGenerator {
   }
 
   referencedSTIXObjects(): ReferencedQueryAndId {
-    // Get reference id
-    const referencedIds: Set<Id> = new Set();
+    const referencedIds: Set<Id> = new Set<Id>();
     for (const STIXObject of this.STIXObjectList) {
-      const createdByRef: string | undefined = STIXObject.created_by_ref;
-      if (createdByRef && !referencedIds.has(createdByRef)) {
-        referencedIds.add(createdByRef);
+      if (STIXObject.createdByRef) {
+        referencedIds.add(STIXObject.created_by_ref);
       }
     }
 
-    // Generate insert query of reference STIX object
-    const queryList: Set<Query> = new Set();
-    for (const STIXObject of this.STIXObjectList) {
-      for (const referencedId of referencedIds) {
-        if (STIXObject.id === referencedId) {
-          let entityType: string = STIXEntityToTypeDB(STIXObject.type).type;
-          if (entityType === 'identity') {
-            entityType = STIXObject.identity_class;
-          }
-          const query = `insert $x isa ${entityType}, ${this.attributes(STIXObject)};`;
-          queryList.add(query);
-        }
+    const referencedSTIXObjectList: STIXObject[] = this.STIXObjectList.filter(
+      (STIXObject) => referencedIds.has(STIXObject.id),
+    );
+
+    const queryList: Set<Query> = new Set<Query>();
+    for (const referencedSTIXObject of referencedSTIXObjectList) {
+      let entityType: string = STIXEntityToTypeDB(
+        referencedSTIXObject.type,
+      ).type;
+      if (entityType === 'identity') {
+        entityType = referencedSTIXObject.identity_class;
       }
+      queryList.add(`
+        insert
+          $x isa ${entityType},
+          ${this.attributes(referencedSTIXObject)};`);
     }
 
     logger.info(
-      `Generated ${queryList.size} insert queries for referenced STIX entities`,
+      `Generated ${queryList.size} insert queries for referenced entities`,
     );
     return {
       referencedQueryList: [...queryList],
@@ -47,8 +48,8 @@ class STIXInsertGenerator {
   }
 
   statementMarkings(): MarkingQueryAndId {
-    const queryList: Set<Query> = new Set();
-    const processedIds: Set<Id> = new Set();
+    const queryList: Set<Query> = new Set<Query>();
+    const processedIds: Set<Id> = new Set<Id>();
 
     for (const STIXObject of this.STIXObjectList) {
       if (
@@ -61,22 +62,21 @@ class STIXInsertGenerator {
             has stix-id '${STIXObject.id}',
             has statement '${STIXObject.definition.statement}',
             has created '${STIXObject.created}',
-            has spec-version '${STIXObject.spec_version}';
-        `);
+            has spec-version '${STIXObject.spec_version}';`);
       }
     }
 
     logger.info(`Generated ${queryList.size} insert queries for markings`);
     return {
-      markingsQueryList: [...queryList],
-      markingsProcessedIds: [...processedIds],
+      markingQueryList: [...queryList],
+      markingProcessedIds: [...processedIds],
     };
   }
 
   STIXObjectsAndMarkingRelations(
     excludeIds: Id[],
-  ): EntityQueryAndMarkingRelations {
-    const STIXEntityQueryList: Set<Query> = new Set();
+  ): STIXEntitiesAndMarkingRelations {
+    const STIXEntities: Set<Query> = new Set();
     const STIXObjectsWithMarkingRefs: STIXObject[] = [];
     const ignoreDeprecated: boolean = Boolean(
       JSON.parse(process.env.IGNORE_DEPRECATED!),
@@ -100,7 +100,7 @@ class STIXInsertGenerator {
           STIXObjectsWithMarkingRefs.push(STIXObject);
         }
 
-        STIXEntityQueryList.add(
+        STIXEntities.add(
           this.generateSTIXEntitiesInsertQuery(STIXObject, STIXObjectType),
         );
       }
@@ -111,13 +111,13 @@ class STIXInsertGenerator {
     );
     logger.info(`Skipped ${ignoredObjects} deprecated objects`);
     logger.info(
-      `Generated ${STIXEntityQueryList.size} insert queries for STIXObjects`,
+      `Generated ${STIXEntities.size} insert queries for STIXObjects`,
     );
     logger.info(
       `Generated ${markingRelationsQueryList.size} insert queries for marking relations`,
     );
     return {
-      STIXEntityQueryList: [...STIXEntityQueryList],
+      STIXEntities: [...STIXEntities],
       markingRelations: [...markingRelationsQueryList],
     };
   }
@@ -331,9 +331,9 @@ class STIXInsertGenerator {
 
   attributes(STIXObject: STIXObject | ExternalReference): Query {
     let query: Query = '';
-    const typeDBAttributes: STIXAttributeMapper = STIXAttributesToTypeDB();
+    const attributeMap: STIXAttributeMapper = STIXAttributesToTypeDB();
 
-    for (const [STIXKey, STIXMap] of Object.entries(typeDBAttributes)) {
+    for (const [STIXKey, STIXMap] of Object.entries(attributeMap)) {
       if (STIXKey in STIXObject) {
         const attribute = STIXMap.type;
         const STIXValue = STIXObject[STIXKey];

@@ -51,20 +51,20 @@ class STIXMigrator {
     insertQueryGenerator: STIXInsertGenerator,
   ): Promise<void> {
     // Generate reference STIX object insert queries
-    const { referencedQueryList, referencedProcessedIds } =
+    let { referencedQueryList, referencedProcessedIds } =
       insertQueryGenerator.referencedSTIXObjects();
     await this.inserter.insert(referencedQueryList);
 
     // Generate markings STIX object insert queries
-    const { markingsQueryList, markingsProcessedIds } =
+    let { markingQueryList, markingProcessedIds } =
       insertQueryGenerator.statementMarkings();
-    await this.inserter.insert(markingsQueryList);
+    await this.inserter.insert(markingQueryList);
 
     const STIXIdsProcessed: Id[] =
-      referencedProcessedIds.concat(markingsProcessedIds);
-    const { STIXEntityQueryList, markingRelations } =
+      referencedProcessedIds.concat(markingProcessedIds);
+    const { STIXEntities, markingRelations } =
       insertQueryGenerator.STIXObjectsAndMarkingRelations(STIXIdsProcessed); // Exclude processed STIX objects
-    await this.inserter.insert(STIXEntityQueryList);
+    await this.inserter.insert(STIXEntities);
     await this.inserter.insert(markingRelations);
   }
 

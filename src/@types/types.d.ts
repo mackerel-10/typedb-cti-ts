@@ -135,12 +135,12 @@ interface ReferencedQueryAndId {
 }
 
 interface MarkingQueryAndId {
-  markingsQueryList: Query[];
-  markingsProcessedIds: Id[];
+  markingQueryList: Query[];
+  markingProcessedIds: Id[];
 }
 
-interface EntityQueryAndMarkingRelations {
-  STIXEntityQueryList: Query[];
+interface STIXEntitiesAndMarkingRelations {
+  STIXEntities: Query[];
   markingRelations: Query[];
 }
 

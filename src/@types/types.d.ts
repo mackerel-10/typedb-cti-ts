@@ -50,11 +50,19 @@ interface STIXMap {
   STIXType?: string;
 }
 
-interface STIXAttributeMapper {
+interface STIXAttributeMapper extends Record<string, STIXMap> {
   [K in STIXAttribute]: STIXMap;
 }
 
-interface STIXObject extends Record<string, string | STIXEntity> {
+type STIXProperty =
+  | boolean
+  | string
+  | string[]
+  | STIXEntity
+  | STIXRelation
+  | KillChainPhase[]
+  | ExternalReference[];
+interface STIXObject extends Record<string, STIXProperty> {
   id: string;
   type: STIXEntity;
   created: string;
@@ -141,7 +149,7 @@ interface KillChainPhaseListAndUsages {
   killChainPhaseUsages: Query[];
 }
 
-interface ExternalRefereceListAndRelations {
+interface ExternalReferenceListAndRelations {
   externalReferenceList: Query[];
   externalReferenceRelations: Query[];
 }

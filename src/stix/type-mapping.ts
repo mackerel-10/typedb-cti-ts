@@ -103,18 +103,18 @@ const STIXRelationToTypeDB = (STIXRelationType: STIXRelation): STIXMap => {
 
 const STIXAttributesToTypeDB = (): STIXAttributeMapper => {
   return {
-    id: { type: 'stix-id', value: 'string' },
-    created: { type: 'created', value: 'string' },
-    modified: { type: 'modified', value: 'string' },
-    'spec-version': { type: 'spec-version', value: 'string' },
-    description: { type: 'description', value: 'string' },
-    name: { type: 'name', value: 'string' },
-    aliases: { type: 'alias', value: 'list' },
-    revoked: { type: 'revoked', value: 'boolean' },
-    is_family: { type: 'is-family', value: 'boolean' },
-    source_name: { type: 'source-name', value: 'string' },
-    url: { type: 'url', value: 'string' },
-    external_id: { type: 'external-id', value: 'string' },
+    id: { type: 'stix-id' },
+    created: { type: 'created' },
+    modified: { type: 'modified' },
+    'spec-version': { type: 'spec-version' },
+    description: { type: 'description' },
+    name: { type: 'name' },
+    aliases: { type: 'alias' },
+    revoked: { type: 'revoked' },
+    is_family: { type: 'is-family' },
+    source_name: { type: 'source-name' },
+    url: { type: 'url' },
+    external_id: { type: 'external-id' },
   };
 };
 

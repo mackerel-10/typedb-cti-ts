@@ -293,6 +293,7 @@ class STIXInsertGenerator {
     const attributeMapping: STIXAttributeMapper = STIXAttributesToTypeDB();
     const externalReferenceList: Set<Query> = new Set<Query>();
     const externalReferenceRelations: Set<Query> = new Set<Query>();
+
     // filter out objects with external references
     const objectWithExternalReferences: STIXObject[] =
       this.STIXObjectList.filter(
@@ -303,6 +304,10 @@ class STIXInsertGenerator {
       const matchOwner: Query = `match $x has stix-id '${STIXObject.id}'`;
       for (const externalReference of STIXObject.external_references) {
         const externalReferenceAttributes: Query = '';
+        for (const [STIXKey, STIXValue] of Object.entries(externalReference)) {
+          if (attributeMapping[STIXKey]) {
+          }
+        }
       }
     }
 
@@ -316,26 +321,19 @@ class STIXInsertGenerator {
     let query: Query = '';
     const typeDBAttributes: STIXAttributeMapper = STIXAttributesToTypeDB();
 
-    for (const [STIXKey, typeQLDefinition] of Object.entries(
-      typeDBAttributes,
-    )) {
+    for (const [STIXKey, STIXMap] of Object.entries(typeDBAttributes)) {
       if (STIXKey in STIXObject) {
-        const typeQLAttributeType = typeQLDefinition.type;
-        const STIXValueType = typeQLDefinition.value;
-        const STIXValue: string | string[] = STIXObject[STIXKey];
+        const attribute = STIXMap.type;
+        const STIXValue = STIXObject[STIXKey];
 
-        switch (STIXValueType) {
-          case 'string':
-            query += ` has ${typeQLAttributeType} '${STIXValue.replace(/'/g, '"').trim()}',`;
-            break;
-          case 'boolean':
-            query += ` has ${typeQLAttributeType} ${STIXValue},`;
-            break;
-          case 'list':
-            for (const value of STIXValue) {
-              query += ` has ${typeQLAttributeType} '${value}',`;
-            }
-            break;
+        if (typeof STIXValue === 'string') {
+          query += ` has ${attribute} '${STIXValue.replace(/'/g, '"').trim()}',`;
+        } else if (typeof STIXValue === 'boolean') {
+          query += ` has ${attribute} ${STIXValue},`;
+        } else if (Array.isArray(STIXValue)) {
+          for (const value of STIXValue) {
+            query += ` has ${attribute} '${value}',`;
+          }
         }
       }
     }

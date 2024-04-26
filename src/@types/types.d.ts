@@ -129,12 +129,12 @@ interface ExternalReference extends Record<string, string> {
 }
 
 // STIX Objects And Marking Relations
-interface ReferencedQueryAndId {
+interface ReferencedQueryAndProcessedId {
   referencedQueryList: Query[];
   referencedProcessedIds: Id[];
 }
 
-interface MarkingQueryAndId {
+interface MarkingQueryAndProcessedId {
   markingQueryList: Query[];
   markingProcessedIds: Id[];
 }
@@ -144,8 +144,8 @@ interface STIXEntitiesAndMarkingRelations {
   markingRelations: Query[];
 }
 
-interface KillChainPhaseListAndUsages {
-  killChainPhaseList: Query[];
+interface KillChainPhasesAndUsages {
+  killChainPhases: Query[];
   killChainPhaseUsages: Query[];
 }
 

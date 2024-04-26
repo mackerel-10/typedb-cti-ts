@@ -33,9 +33,22 @@ class TypeDBInserter {
     }
     batchList.push(batch);
 
-    await Promise.all(
-      batchList.map((batch: Query[]) => this.insertQueryBatch(batch)),
-    );
+    // Insert batches to TypeDB
+    const concurrentTaskSize: number =
+      parseInt(process.env.CONCURRENT_TASK_SIZE!) || 5;
+    for (
+      let batchSize = 0;
+      batchSize < batchList.length;
+      batchSize += concurrentTaskSize
+    ) {
+      const slicedBatchList: Query[][] = batchList.slice(
+        batchSize,
+        batchSize + concurrentTaskSize,
+      );
+      await Promise.all(
+        slicedBatchList.map((batch: Query[]) => this.insertQueryBatch(batch)),
+      );
+    }
 
     logger.info(
       `Inserted ${queryList.length} queries in ${new Date().getTime() - startTime} ms`,
@@ -57,8 +70,9 @@ class TypeDBInserter {
 
       await transaction.commit();
     } catch (error) {
-      console.error(error);
-      logger.error(error);
+      if (error instanceof Error) {
+        logger.error(`${error.message}`, { stack: error.stack });
+      }
       await transaction?.rollback();
     } finally {
       await close(transaction, session);

@@ -35,7 +35,7 @@ class TypeDBInserter {
 
     // Insert batches to TypeDB
     const concurrentTaskSize: number =
-      parseInt(process.env.CONCURRENT_TASK_SIZE!) || 5;
+      parseInt(process.env.CONCURRENT_TASK_SIZE!) || 10;
     for (
       let batchSize = 0;
       batchSize < batchList.length;

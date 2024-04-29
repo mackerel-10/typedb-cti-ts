@@ -3,6 +3,9 @@ type Id = string;
 type Transaction = TypeDBTransaction | undefined;
 type Session = TypeDBSession | undefined;
 type Driver = TypeDBDriver | undefined;
+type KillChainName = string;
+type PhaseName = string;
+type KillChainTuple = [KillChainName, PhaseName];
 
 // TypeDB Keywords
 type STIXEntity =
@@ -37,6 +40,14 @@ type STIXAttribute =
   | 'source_name'
   | 'url'
   | 'external_id';
+type STIXProperty =
+  | boolean
+  | string
+  | string[]
+  | STIXEntity
+  | STIXRelation
+  | KillChainPhase[]
+  | ExternalReference[];
 
 // Type Mapping Interface
 interface STIXMap {
@@ -54,14 +65,6 @@ interface STIXAttributeMapper extends Record<string, STIXMap> {
   [K in STIXAttribute]: STIXMap;
 }
 
-type STIXProperty =
-  | boolean
-  | string
-  | string[]
-  | STIXEntity
-  | STIXRelation
-  | KillChainPhase[]
-  | ExternalReference[];
 interface STIXObject extends Record<string, STIXProperty> {
   id: string;
   type: STIXEntity;
@@ -101,10 +104,6 @@ interface STIXObject extends Record<string, STIXProperty> {
 }
 
 // Kill Chain Phases
-type KillChainName = string;
-type PhaseName = string;
-type KillChainTuple = [KillChainName, PhaseName];
-
 interface KillChainPhase {
   kill_chain_name: KillChainName;
   phase_name: PhaseName;
@@ -117,17 +116,15 @@ interface KillChainUsage {
 
 // External References
 interface ExternalReference extends Record<string, string> {
-  /*{
-    "source_name": "mitre-attack",
-    "url": "https://attack.mitre.org/techniques/T1053/005",
-    "external_id": "T1053.005"
-  },*/
   source_name: string;
   url: string;
   external_id?: string;
   description?: string;
 }
 
+/*
+ * Return Interfaces
+ */
 // STIX Objects And Marking Relations
 interface ReferencedQueryAndProcessedId {
   referencedQueryList: Query[];

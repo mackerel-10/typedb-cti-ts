@@ -294,17 +294,15 @@ class STIXInsertGenerator {
 
     for (const STIXObject of objectWithExternalReferences) {
       for (const externalReference of STIXObject.external_references) {
-        const externalReferenceAttributes: Query =
-          this.attributes(externalReference);
         externalReferenceEntities.add(`
           insert
             $er isa external-reference,
-            ${externalReferenceAttributes};`);
+            ${this.attributes(externalReference)};`);
         externalReferenceRelations.add(`
           match
             $x has stix-id '${STIXObject.id}';
             $er isa external-reference,
-            ${externalReferenceAttributes};
+            ${this.attributes(externalReference)};
           insert
             (referencing: $x, referenced: $er) isa external-referencing;`);
       }

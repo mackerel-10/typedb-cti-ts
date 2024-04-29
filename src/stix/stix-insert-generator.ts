@@ -185,7 +185,7 @@ class STIXInsertGenerator {
       if (relation.type === 'stix-core-relationship') {
         insertQuery = `
           (${relation.activeRole}: $source, ${relation.passiveRole}: $target) isa ${relation.type},
-            has stix-type '${relation.stixType}'`;
+            has stix-type '${relation.STIXType}'`;
       } else {
         insertQuery = `
           (${relation.activeRole}: $source, ${relation.passiveRole}: $target) isa ${relation.type}`;
